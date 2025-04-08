@@ -72,7 +72,8 @@ public class JwtService {
 
     public Role extractRole(String token) {
         Claims claims = extractAllClaims(token);
-        return (Role) claims.get("role");
+        String roleStr = claims.get("role", String.class);
+        return Role.valueOf(roleStr);
     }
 
     public boolean isTokenValid(String token) {

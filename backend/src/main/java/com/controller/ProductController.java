@@ -21,7 +21,7 @@ public class ProductController {
     private JwtService jwtService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addProduct(@RequestBody Product request, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> addProduct(@RequestBody Product request) {
         if(productService.addProduct(request)) {
             return ResponseEntity.status(200).body(new StatusResponse("Product added successfully"));
         }

@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/vnpay")
-public class VnPayController {
+@RequestMapping("/api/vnpay")public class VnPayController {
 
     @Autowired
     private VnPayService vnPayService;

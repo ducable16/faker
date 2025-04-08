@@ -1,5 +1,6 @@
 package com.config;
 
+import com.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +21,18 @@ public class SecurityConfig {
 
     @Autowired
     JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    CustomAccessDeniedHandler customAccessDeniedHandler;
+    @Autowired
+    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf((AbstractHttpConfigurer::disable))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/users/forget-password").permitAll()
