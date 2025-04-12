@@ -20,8 +20,6 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
-    @Autowired
-    private UserRepository userRepository;
 
     public boolean addProduct(Product product) {
         if(productRepository.findByProductName(product.getProductName()).isPresent()) {
@@ -77,6 +75,7 @@ public class ProductService {
     public List<Product> searchProductByName(String search) {
         return productRepository.findByProductNameContainingIgnoreCase(search);
     }
+
 
 
 
