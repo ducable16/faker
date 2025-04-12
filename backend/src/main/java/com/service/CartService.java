@@ -26,7 +26,7 @@ public class CartService {
     public boolean updateCartItem(CartItem cartItem) {
         Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductId(cartItem.getUserId(), cartItem.getProductId());
         if(item.isPresent()) {
-            item.get().setQuantity(item.get().getQuantity() - cartItem.getQuantity());
+            item.get().setQuantity(item.get().getQuantity() + cartItem.getQuantity());
             cartItemRepository.save(item.get());
             return true;
         }
