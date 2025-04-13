@@ -18,7 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 public class SecurityConfig {
-
     @Autowired
     JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
@@ -42,11 +41,12 @@ public class SecurityConfig {
                         .requestMatchers("/product/delete").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/product/update").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/product/**").permitAll()
-                        .requestMatchers("/order/status/").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
-                        .requestMatchers("/order/view/").authenticated()
+                        .requestMatchers("/order/status/**").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/order/approve/").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/order/**").authenticated()
-                        .requestMatchers("/cart-item/**").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
+                        .requestMatchers("/cart-item/**").authenticated()
+                        .requestMatchers("/category/**").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
+                        .requestMatchers("/api/vnpay/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
