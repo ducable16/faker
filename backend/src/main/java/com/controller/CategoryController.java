@@ -1,11 +1,8 @@
 package com.controller;
 
 import com.entity.Category;
-import com.entity.Product;
-import com.repository.CategoryRepository;
 import com.response.StatusResponse;
 import com.service.CategoryService;
-import com.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
