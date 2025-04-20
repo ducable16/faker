@@ -1,6 +1,8 @@
 package com.controller;
 
 import com.entity.Product;
+import com.entity.dto.ProductDTO;
+import com.request.ProductRequest;
 import com.response.StatusResponse;
 import com.response.TokenResponse;
 import com.service.JwtService;
@@ -21,7 +23,7 @@ public class ProductController {
     private JwtService jwtService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addProduct(@RequestBody Product request) {
+    public ResponseEntity<?> addProduct(@RequestBody ProductRequest request) {
         if(productService.addProduct(request)) {
             return ResponseEntity.status(200).body(new StatusResponse("Product added successfully"));
         }
@@ -37,34 +39,34 @@ public class ProductController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateProduct(@RequestBody Product request) {
-        if(productService.updateProduct(request)) {
-            return ResponseEntity.status(200).body(new StatusResponse("Product updated successfully"));
-        }
-        else return ResponseEntity.status(404).body(new StatusResponse("This product does not exist"));
+    public ResponseEntity<?> updateProduct(@RequestBody ProductRequest request) {
+        productService.updateProduct(request);
+        return ResponseEntity.status(200).body(new StatusResponse("Product updated successfully"));
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProduct(@PathVariable Integer productId) {
-        Optional<Product> product = productService.getProductById(productId);
-        if(product.isPresent()) {
-            return ResponseEntity.status(200).body(product.get());
+        ProductDTO productDTO = productService.getProductById(productId);
+        if(productDTO != null) {
+            return ResponseEntity.status(200).body(productDTO);
         }
         else return ResponseEntity.status(404).body(new StatusResponse("This product does not exist"));
     }
     @GetMapping("/category={category}")
     public ResponseEntity<?> getProductsByCategory(@PathVariable String category) {
-        List<Product> products = productService.getProductsByCategory(category);
-        if(products == null) {
+        List<ProductDTO> products = productService.getProductsByCategory(category);
+        if(products == null)
             return ResponseEntity.status(404).body(new StatusResponse("This category does not exist"));
-        }
-        if(products.isEmpty()) return ResponseEntity.status(200).body(new StatusResponse("This category does not have any products"));
-        else return ResponseEntity.status(200).body(products);
+
+        if(products.isEmpty())
+            return ResponseEntity.status(200).body(new StatusResponse("This category does not have any products"));
+
+        return ResponseEntity.status(200).body(products);
     }
 
     @GetMapping("/search={search}")
     public ResponseEntity<?> searchProduct(@PathVariable String search) {
-        List<Product> products = productService.searchProductByName(search);
+        List<ProductDTO> products = productService.searchProductByName(search);
         if(products.isEmpty()) {
             return ResponseEntity.status(200).body(new StatusResponse("No matching products found"));
         }
