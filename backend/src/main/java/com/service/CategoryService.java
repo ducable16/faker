@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,7 +19,13 @@ public class CategoryService {
     @Autowired
     private PlaceholderConfigurerSupport placeholderConfigurerSupport;
 
+    public List<Category> getAll() {
+        return categoryRepository.findAll();
+    }
+    public Optional<Category> getByName(String categoryName) {
+        return categoryRepository.findByCategoryNameIgnoreCase(categoryName);
 
+    }
     public boolean addCategory(Category category) {
         if(categoryRepository.findByCategoryNameIgnoreCase(category.getCategoryName()).isPresent()) {
             return false;
@@ -38,7 +45,7 @@ public class CategoryService {
     }
 
     public boolean updateCategory(Category category) {
-        Optional<Category> categoryOptional = categoryRepository.findByCategoryId(category.getCategoryId());
+        Optional<Category> categoryOptional = categoryRepository.findByCategoryNameIgnoreCase(category.getCategoryName());
         if(categoryOptional.isPresent()) {
             Category oldCategory = categoryOptional.get();
             if(category.getCategoryName() != null) {oldCategory.setCategoryName(category.getCategoryName());}
