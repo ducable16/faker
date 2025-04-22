@@ -127,8 +127,12 @@ public class VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddr);
 
         // Date formatting
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        TimeZone tz = TimeZone.getTimeZone("Asia/Ho_Chi_Minh");
+
+        Calendar calendar = Calendar.getInstance(tz);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        formatter.setTimeZone(tz);
+
         String createDate = formatter.format(calendar.getTime());
         vnp_Params.put("vnp_CreateDate", createDate);
 
