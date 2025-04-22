@@ -1,10 +1,8 @@
 package com.controller;
 
-import com.entity.Product;
 import com.entity.dto.ProductDTO;
 import com.request.ProductRequest;
 import com.response.StatusResponse;
-import com.response.TokenResponse;
 import com.service.JwtService;
 import com.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -64,9 +62,20 @@ public class ProductController {
         return ResponseEntity.status(200).body(products);
     }
 
+    @GetMapping("/{category}/{brand}")
+    public ResponseEntity<?> getProductsByCategoryAndBrand(@PathVariable String category, @PathVariable String brand) {
+        List<ProductDTO> products = productService.getProductByCategoryAndBrand(category, brand);
+        if(products == null)
+            return ResponseEntity.status(404).body(new StatusResponse("Not exist"));
+        if(products.isEmpty()) {
+            return ResponseEntity.status(404).body(new StatusResponse("No products found"));
+        }
+        return ResponseEntity.status(200).body(products);
+    }
+
     @GetMapping("/search={search}")
     public ResponseEntity<?> searchProduct(@PathVariable String search) {
-        List<ProductDTO> products = productService.searchProductByName(search);
+        List<ProductDTO> products = productService.searchProductsByName(search);
         if(products.isEmpty()) {
             return ResponseEntity.status(200).body(new StatusResponse("No matching products found"));
         }

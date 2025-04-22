@@ -28,7 +28,7 @@ public class ProductVariant {
     private String color;
 
     @Column(name = "discount_percentage")
-    private Double discountPercentage;
+    private Double discountPercentage = 0.0;
 
     @Column(name = "stock_quantity")
     private Integer stockQuantity;

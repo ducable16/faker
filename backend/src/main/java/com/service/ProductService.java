@@ -55,6 +55,7 @@ public class ProductService {
         product.setProductName(request.getProductName());
         product.setDescription(request.getDescription());
         product.setWeight(request.getWeight());
+        product.setPrice(request.getPrice());
         Integer categoryId = categoryRepository.findByCategoryNameIgnoreCase(request.getCategoryName()).get().getCategoryId();
         Integer brandId = brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId();
 
@@ -127,9 +128,23 @@ public class ProductService {
 
     }
 
-    public List<ProductDTO> searchProductByName(String search) {
+    public List<ProductDTO> searchProductsByName(String search) {
 
         List<Product> products = productRepository.findByProductNameContainingIgnoreCase(search);
+        List<ProductDTO> productDTOs = new ArrayList<>();
+        for(Product product : products) {
+            ProductDTO dto = toDTO(product);
+            productDTOs.add(dto);
+        }
+        return productDTOs;
+    }
+
+    public List<ProductDTO> getProductByCategoryAndBrand(String categoryName, String brandName) {
+        Integer categoryId = categoryRepository.findByCategoryNameIgnoreCase(categoryName).get().getCategoryId();
+        Integer brandId = categoryRepository.findByCategoryNameIgnoreCase(categoryName).get().getCategoryId();
+
+
+        List<Product> products = productRepository.findProductsByCategoryIdAndBrandId(categoryId, brandId);
         List<ProductDTO> productDTOs = new ArrayList<>();
         for(Product product : products) {
             ProductDTO dto = toDTO(product);
