@@ -144,20 +144,6 @@ public class VnPayService {
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
 
-//        StringBuilder hashData = new StringBuilder();
-//        StringBuilder query = new StringBuilder();
-//
-//        for (int i = 0; i < fieldNames.size(); i++) {
-//            String name = fieldNames.get(i);
-//            String value = URLEncoder.encode(vnp_Params.get(name), StandardCharsets.US_ASCII.toString());
-//            hashData.append(name).append("=").append(value);
-//            query.append(name).append("=").append(value);
-//            if (i != fieldNames.size() - 1) {
-//                hashData.append("&");
-//                query.append("&");
-//            }
-//        }
-
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
         Iterator itr = fieldNames.iterator();
@@ -179,9 +165,6 @@ public class VnPayService {
                 }
             }
         }
-
-//        String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData);
-//        fields.put("vnp_SecureHash", vnp_SecureHash);
         String vnp_SecureHash = VnPayConfig.hmacSHA512(VnPayConfig.secretKey, hashData.toString());
         query.append("&vnp_SecureHash=").append(vnp_SecureHash);
         System.out.println(vnp_SecureHash);

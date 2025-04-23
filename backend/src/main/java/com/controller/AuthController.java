@@ -6,12 +6,14 @@ import com.request.SignUpRequest;
 import com.response.StatusResponse;
 import com.service.*;
 import com.entity.User;
+import org.hibernate.Version;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/auth")

@@ -1,10 +1,14 @@
 package com.entity;
 
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +31,10 @@ public class Product {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+//    @Type(value = StringArrayType.class)
+//    @Column(name = "specifications", columnDefinition = "TEXT[]")
+//    private List<String> specifications;
 
     private Integer weight;
 
