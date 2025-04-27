@@ -16,7 +16,7 @@ public class ProductRequest {
 
     private List<String> specifications;
 
-    private Integer weight;
+    private Double weight;
 
     private Long price;
 

@@ -23,7 +23,7 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseEntity<?> addProduct(@RequestBody ProductRequest request) {
         if(productService.addProduct(request)) {
-            return ResponseEntity.status(200).body(new StatusResponse("Product added successfully"));
+            return ResponseEntity.status(200).body(productService.getProductByProductName(request.getProductName()));
         }
         else return ResponseEntity.status(409).body(new StatusResponse("This product already exists"));
     }
@@ -39,7 +39,7 @@ public class ProductController {
     @PutMapping("/update")
     public ResponseEntity<?> updateProduct(@RequestBody ProductRequest request) {
         productService.updateProduct(request);
-        return ResponseEntity.status(200).body(new StatusResponse("Product updated successfully"));
+        return ResponseEntity.status(200).body(productService.getProductByProductName(request.getProductName()));
     }
 
     @GetMapping("/{productId}")
