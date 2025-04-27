@@ -35,6 +35,10 @@ public class ProductService {
         dto.setSpecifications(product.getSpecifications());
         dto.setPrice(product.getPrice());
         dto.setWeight(product.getWeight());
+        String category = categoryRepository.findByCategoryId(product.getCategoryId()).get().getCategoryName();
+        String brand = brandRepository.findByBrandId(product.getBrandId()).get().getBrandName();
+        dto.setCategory(category);
+        dto.setBrand(brand);
         dto.setSupportRushOrder(product.getSupportRushOrder());
 
         List<ProductVariantDTO> variantDTOs = product.getVariants().stream().map(variant -> {
