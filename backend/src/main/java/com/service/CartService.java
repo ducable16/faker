@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,6 +41,10 @@ public class CartService {
             return true;
         }
         return false;
+    }
+
+    public List<CartItem> getCartItems(Integer userId) {
+        return cartItemRepository.findCartItemByUserId(userId);
     }
 
 

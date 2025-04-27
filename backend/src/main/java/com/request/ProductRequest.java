@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class ProductRequest {
 
+    private Integer productId;
+
     private String productName;
 
     private String description;

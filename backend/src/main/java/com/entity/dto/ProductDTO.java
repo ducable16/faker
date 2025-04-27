@@ -13,7 +13,7 @@ public class ProductDTO {
     private Double weight;
     private Long price;
     private Boolean supportRushOrder;
-    private String category;
-    private String brand;
+    private String categoryName;
+    private String brandName;
     private List<ProductVariantDTO> variants;
 }

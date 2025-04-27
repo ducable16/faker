@@ -8,7 +8,9 @@ import com.repository.CategoryRepository;
 import com.repository.ProductRepository;
 import com.entity.dto.ProductDTO;
 import com.entity.dto.ProductVariantDTO;
+import com.repository.ProductVariantRepository;
 import com.request.ProductRequest;
+import com.request.ProductVariantRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +29,8 @@ public class ProductService {
     private CategoryRepository categoryRepository;
     @Autowired
     private BrandRepository brandRepository;
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
 
     public ProductDTO toDTO(Product product) {
         ProductDTO dto = new ProductDTO();
@@ -36,9 +41,11 @@ public class ProductService {
         dto.setPrice(product.getPrice());
         dto.setWeight(product.getWeight());
         String category = categoryRepository.findByCategoryId(product.getCategoryId()).get().getCategoryName();
+
+        System.out.println(category);
         String brand = brandRepository.findByBrandId(product.getBrandId()).get().getBrandName();
-        dto.setCategory(category);
-        dto.setBrand(brand);
+        dto.setCategoryName(category);
+        dto.setBrandName(brand);
         dto.setSupportRushOrder(product.getSupportRushOrder());
 
         List<ProductVariantDTO> variantDTOs = product.getVariants().stream().map(variant -> {
@@ -57,11 +64,16 @@ public class ProductService {
     public Product toEntity(ProductRequest request) {
         // Tạo Product
         Product product = new Product();
+        if(request.getProductId() != null) {
+            product.setProductId(request.getProductId());
+        }
         product.setProductName(request.getProductName());
         product.setDescription(request.getDescription());
         product.setSpecifications(request.getSpecifications());
         product.setWeight(request.getWeight());
         product.setPrice(request.getPrice());
+        System.out.println(request.getCategoryName());
+        System.out.println("---------------------------------------------------------");
         Integer categoryId = categoryRepository.findByCategoryNameIgnoreCase(request.getCategoryName()).get().getCategoryId();
         Integer brandId = brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId();
 
@@ -112,6 +124,41 @@ public class ProductService {
     public void updateProduct(ProductRequest request) {
         Product product = toEntity(request);
         product.setUpdatedAt(LocalDateTime.now());
+
+
+        Set<Integer> updatedVariantIds = request.getVariants().stream()
+                .filter(v -> v.getVariantId() != null)
+                .map(ProductVariantRequest::getVariantId)
+                .collect(Collectors.toSet());
+
+        List<ProductVariant> currentVariants = productVariantRepository.findByProduct_ProductId(product.getProductId());
+
+        // Bước 3: Xóa những variant cũ mà không còn trong danh sách mới
+        for (ProductVariant variant : currentVariants) {
+            if (!updatedVariantIds.contains(variant.getVariantId())) {
+                productVariantRepository.delete(variant);
+            }
+        }
+        for (ProductVariantRequest variantReq : request.getVariants()) {
+            if (variantReq.getVariantId() != null && productVariantRepository.findById(variantReq.getVariantId()).isPresent()) {
+                ProductVariant variant = productVariantRepository.findById(variantReq.getVariantId()).get();
+                variant.setColor(variantReq.getColor());
+                variant.setImageUrl(variantReq.getImageUrl());
+                variant.setStockQuantity(variantReq.getStockQuantity());
+                variant.setDiscountPercentage(variantReq.getDiscountPercentage());
+                productVariantRepository.save(variant);
+            } else {
+                // Insert variant mới
+                ProductVariant newVariant = new ProductVariant();
+                newVariant.setProduct(product);
+                newVariant.setColor(variantReq.getColor());
+                newVariant.setImageUrl(variantReq.getImageUrl());
+                newVariant.setStockQuantity(variantReq.getStockQuantity());
+                newVariant.setDiscountPercentage(variantReq.getDiscountPercentage());
+                productVariantRepository.save(newVariant);
+            }
+        }
+
         productRepository.save(product);
     }
 

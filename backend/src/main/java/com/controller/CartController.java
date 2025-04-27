@@ -1,11 +1,15 @@
 package com.controller;
 
 import com.entity.CartItem;
+import com.entity.User;
 import com.response.StatusResponse;
 import com.service.CartService;
+import com.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cart-item")
@@ -13,6 +17,8 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/add")
     public ResponseEntity<?> addCartItem(@RequestBody CartItem cartItem) {
@@ -33,5 +39,10 @@ public class CartController {
             return ResponseEntity.status(200).body(new StatusResponse("Removed cart item"));
         }
         return ResponseEntity.status(404).body(new StatusResponse("Not found cart item"));
+    }
+    @GetMapping("/")
+    public ResponseEntity<?> getCartItems(@RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getInfo(token);
+        return ResponseEntity.status(200).body(cartService.getCartItems(user.get().getUserId()));
     }
 }
