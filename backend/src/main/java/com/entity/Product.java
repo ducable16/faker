@@ -33,8 +33,6 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-//    @Type(value = StringArrayType.class)
-//    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "specifications", columnDefinition = "TEXT[]")
     private String specifications;
 
