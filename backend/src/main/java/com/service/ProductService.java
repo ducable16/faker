@@ -70,8 +70,6 @@ public class ProductService {
         product.setSpecifications(request.getSpecifications());
         product.setWeight(request.getWeight());
         product.setPrice(request.getPrice());
-        System.out.println(request.getCategoryName());
-        System.out.println("---------------------------------------------------------");
         Integer categoryId = categoryRepository.findByCategoryNameIgnoreCase(request.getCategoryName()).get().getCategoryId();
         Integer brandId = brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId();
 
@@ -79,7 +77,6 @@ public class ProductService {
         product.setBrandId(brandId);
         product.setSupportRushOrder(request.getSupportRushOrder());
 
-        // Map danh sách variants
         List<ProductVariant> variants = request.getVariants().stream()
                 .map(variantReq -> {
                     ProductVariant variant = new ProductVariant();
@@ -89,7 +86,6 @@ public class ProductService {
                     variant.setStockQuantity(variantReq.getStockQuantity());
                     variant.setImageUrl(variantReq.getImageUrl());
                     variant.setProduct(product);
-//                    System.out.println(variant.getVariantId());
                     return variant;
                 })
                 .collect(Collectors.toList());
@@ -155,20 +151,15 @@ public class ProductService {
                     .findFirst()
                     .orElseGet(() -> {
                         ProductVariant newVariant = new ProductVariant();
-//                        newVariant.setVariantId(variantReq.getVariantId()); // Giữ nguyên ID cũ
-                        newVariant.setProduct(product);                    // Gán product cha
-                        product.getVariants().add(newVariant);             // Thêm vào list
+                        newVariant.setProduct(product);
+                        product.getVariants().add(newVariant);
                         return newVariant;
                     });
-
-            // Cập nhật thông tin cho cả variant cũ và mới
             variant.setColor(variantReq.getColor());
             variant.setImageUrl(variantReq.getImageUrl());
             variant.setStockQuantity(variantReq.getStockQuantity());
             variant.setDiscountPercentage(variantReq.getDiscountPercentage());
         }
-
-//        product.setVariants(updatedVariants);
         productRepository.save(product);
     }
 
