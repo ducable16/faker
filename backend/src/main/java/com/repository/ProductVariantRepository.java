@@ -12,4 +12,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     Optional<ProductVariant> findByVariantId(Integer variantId);
 
     List<ProductVariant> findByProduct_ProductId(Integer productId);
+
+    Optional<ProductVariant> findByVariantIdAndProduct_ProductId(Integer variantId, Integer productId);
+
 }

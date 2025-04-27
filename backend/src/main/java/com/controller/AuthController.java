@@ -44,7 +44,7 @@ public class AuthController {
     public ResponseEntity<?> signUpOtp(@RequestBody SignUpOTPRequest request) {
         if (otpService.validateOtp(request.getEmail(), request.getOtp())) {
             userService.createUser(request);
-            return ResponseEntity.status(200).body(new StatusResponse("Account has been created successfully"));
+            return ResponseEntity.status(200).body(userService.findByUsername(request.getUsername()).get());
         } else {
             return ResponseEntity.status(400).body(new StatusResponse("Wrong OTP"));
         }

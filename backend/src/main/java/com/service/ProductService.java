@@ -9,8 +9,10 @@ import com.repository.ProductRepository;
 import com.entity.dto.ProductDTO;
 import com.entity.dto.ProductVariantDTO;
 import com.repository.ProductVariantRepository;
+import com.request.ProductQuantityCheckRequest;
 import com.request.ProductRequest;
 import com.request.ProductVariantRequest;
+import com.response.ProductQuantityCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -215,6 +217,18 @@ public class ProductService {
             productDTOs.add(dto);
         }
         return productDTOs;
+    }
+
+    public ProductQuantityCheckResponse checkProductQuantity(ProductQuantityCheckRequest request) {
+        ProductQuantityCheckResponse response = new ProductQuantityCheckResponse();
+        Optional<ProductVariant> productVariant = productVariantRepository.findByVariantIdAndProduct_ProductId(request.getVariantId(), request.getProductId());
+        if(productVariant.isPresent()) {
+            response.setProductId(request.getProductId());
+            response.setVariantId(request.getVariantId());
+            response.setQuantity(productVariant.get().getStockQuantity());
+            return response;
+        }
+        else return null;
     }
 
 

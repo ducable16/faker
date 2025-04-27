@@ -14,9 +14,11 @@ public class CartService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
-
+    public Optional<CartItem> getCartItem(Integer userId, Integer productId, Integer variantId) {
+        return cartItemRepository.findCartItemByUserIdAndProductIdAndVariantId(userId, productId, variantId);
+    }
     public void addItemToCart(CartItem cartItem) {
-        Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductId(cartItem.getUserId(), cartItem.getProductId());
+        Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductIdAndVariantId(cartItem.getUserId(), cartItem.getProductId(), cartItem.getVariantId());
         if(item.isPresent()) {
             item.get().setQuantity(item.get().getQuantity() + cartItem.getQuantity());
             cartItemRepository.save(item.get());
@@ -25,7 +27,7 @@ public class CartService {
         cartItemRepository.save(cartItem);
     }
     public boolean updateCartItem(CartItem cartItem) {
-        Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductId(cartItem.getUserId(), cartItem.getProductId());
+        Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductIdAndVariantId(cartItem.getUserId(), cartItem.getProductId(), cartItem.getVariantId());
         if(item.isPresent()) {
             item.get().setQuantity(item.get().getQuantity() + cartItem.getQuantity());
             cartItemRepository.save(item.get());
@@ -35,7 +37,7 @@ public class CartService {
     }
 
     public boolean removeCartItem(CartItem cartItem) {
-        Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductId(cartItem.getUserId(), cartItem.getProductId());
+        Optional<CartItem> item = cartItemRepository.findCartItemByUserIdAndProductIdAndVariantId(cartItem.getUserId(), cartItem.getProductId(), cartItem.getVariantId());
         if(item.isPresent()) {
             cartItemRepository.delete(item.get());
             return true;
@@ -44,7 +46,7 @@ public class CartService {
     }
 
     public List<CartItem> getCartItems(Integer userId) {
-        return cartItemRepository.findCartItemByUserId(userId);
+        return cartItemRepository.findCartItemsByUserId(userId);
     }
 
 

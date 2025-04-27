@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/order/status/**").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/order/approve/").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/order/**").authenticated()
+                        .requestMatchers("/cart-item/check").permitAll()
                         .requestMatchers("/cart-item/**").authenticated()
                         .requestMatchers("/category/**").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/api/vnpay/**").authenticated()

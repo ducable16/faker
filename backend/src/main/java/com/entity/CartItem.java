@@ -22,7 +22,8 @@ public class CartItem {
     private Integer userId;
     @Id
     private Integer productId;
+    @Id
+    private Integer variantId;
     private boolean isSelected = true;
-    private String status;
     private Integer quantity;
 }
