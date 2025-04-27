@@ -14,7 +14,7 @@ public class ProductRequest {
 
     private String description;
 
-    private List<String> specifications;
+    private String specifications;
 
     private Double weight;
 

@@ -34,9 +34,9 @@ public class Product {
     private String description;
 
 //    @Type(value = StringArrayType.class)
-    @JdbcTypeCode(SqlTypes.ARRAY)
+//    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "specifications", columnDefinition = "TEXT[]")
-    private List<String> specifications;
+    private String specifications;
 
     private Double weight;
 
