@@ -222,6 +222,14 @@ public class ProductService {
         else return null;
     }
 
+    public boolean deleteVariant(Integer variantId) {
+        if (!productVariantRepository.existsById(variantId)) {
+            return false;
+        }
+        productVariantRepository.deleteById(variantId);
+        return true;
+    }
+
 
 
 
