@@ -93,6 +93,9 @@ public class ProductService {
         product.setVariants(variants);
         return product;
     }
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
     public Product getProductByProductName(String productName) {
         return productRepository.findByProductName(productName).get();
     }

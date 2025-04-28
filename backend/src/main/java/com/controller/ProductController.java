@@ -88,4 +88,9 @@ public class ProductController {
         }
         else return ResponseEntity.status(404).body(new StatusResponse("Variant does not exist"));
     }
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllProducts() {
+        return ResponseEntity.status(200).body(productService.getAllProducts());
+    }
+
 }
