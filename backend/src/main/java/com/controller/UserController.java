@@ -98,4 +98,12 @@ public class UserController {
         }
         else return ResponseEntity.status(403).body(new StatusResponse("Wrong OTP"));
     }
+    @GetMapping("/customers")
+    public ResponseEntity<?> getAllCustomers() {
+        return ResponseEntity.status(200).body(userService.getUserByRole(Role.CUSTOMER));
+    }
+    @GetMapping("/product_managers")
+    public ResponseEntity<?> getAllProductManager() {
+        return ResponseEntity.status(200).body(userService.getUserByRole(Role.PRODUCT_MANAGER));
+    }
 }

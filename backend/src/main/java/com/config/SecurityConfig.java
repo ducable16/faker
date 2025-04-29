@@ -41,6 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/user/forget-password").permitAll()
                         .requestMatchers("/user/reset-password").permitAll()
+                        .requestMatchers("/user/customers").hasAnyRole("ADMIN")
+                        .requestMatchers("/user/product_managers").hasAnyRole("ADMIN")
                         .requestMatchers("/user/**").authenticated()
                         .requestMatchers("/product/add").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/product/delete").hasAnyRole("ADMIN", "PRODUCT_MANAGER")

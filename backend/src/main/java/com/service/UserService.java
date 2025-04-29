@@ -1,6 +1,7 @@
 package com.service;
 
 import com.entity.User;
+import com.enums.Role;
 import com.repository.UserRepository;
 import com.request.SignUpOTPRequest;
 import com.request.SignUpRequest;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 @Service
 public class UserService {
@@ -68,5 +70,8 @@ public class UserService {
             return true;
         }
         else return false;
+    }
+    public List<User> getUserByRole(Role role) {
+        return userRepository.findUsersByRole(role);
     }
 }
