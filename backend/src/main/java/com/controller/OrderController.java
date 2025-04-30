@@ -5,6 +5,7 @@ import com.entity.User;
 import com.enums.OrderStatus;
 import com.enums.Role;
 import com.repository.OrderRepository;
+import com.request.ApplyStatusRequest;
 import com.request.OrderRequest;
 import com.response.StatusResponse;
 import com.response.UserInfoResponse;
@@ -77,21 +78,12 @@ public class OrderController {
             return ResponseEntity.status(400).body(new StatusResponse("Invalid order status"));
         }
     }
-    @PostMapping("/approve/{orderId}")
-    public ResponseEntity<?> approveOrder(@PathVariable Integer orderId) {
-        Optional<Order> order = orderService.getOrderById(orderId);
-        if(order.isPresent()) {
-            order.get().setStatus(OrderStatus.APPROVED);
-            return ResponseEntity.status(200).body("Approve order successfully");
-        }
-        else return ResponseEntity.status(404).body(new StatusResponse("Order not found"));
-    }
-    @PostMapping("/reject/{orderId}")
-    public ResponseEntity<?> rejectOrder(@PathVariable Integer orderId) {
-        Optional<Order> order = orderService.getOrderById(orderId);
-        if(order.isPresent()) {
-            order.get().setStatus(OrderStatus.REJECTED);
-            return ResponseEntity.status(200).body("Reject order successfully");
+    @PostMapping("/apply-status")
+    public ResponseEntity<?> approveOrder(@RequestBody ApplyStatusRequest request) {
+        OrderStatus orderStatus = OrderStatus.valueOf(request.getStatus().toUpperCase());
+        Order order = orderService.applyOrderStatus(request.getOrderId(), orderStatus);
+        if(order != null) {
+            return ResponseEntity.status(200).body(order);
         }
         else return ResponseEntity.status(404).body(new StatusResponse("Order not found"));
     }
