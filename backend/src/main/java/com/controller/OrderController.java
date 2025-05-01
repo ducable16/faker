@@ -80,12 +80,17 @@ public class OrderController {
     }
     @PostMapping("/apply-status")
     public ResponseEntity<?> approveOrder(@RequestBody ApplyStatusRequest request) {
-        OrderStatus orderStatus = OrderStatus.valueOf(request.getStatus().toUpperCase());
-        Order order = orderService.applyOrderStatus(request.getOrderId(), orderStatus);
-        if(order != null) {
-            return ResponseEntity.status(200).body(order);
+        try {
+            OrderStatus orderStatus = OrderStatus.valueOf(request.getStatus().toUpperCase());
+            Order order = orderService.applyOrderStatus(request.getOrderId(), orderStatus);
+            if(order != null) {
+                return ResponseEntity.status(200).body(order);
+            }
+            else return ResponseEntity.status(404).body(new StatusResponse("Order not found"));
         }
-        else return ResponseEntity.status(404).body(new StatusResponse("Order not found"));
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(new StatusResponse("Invalid order status"));
+        }
     }
 
 }

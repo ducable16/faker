@@ -2,10 +2,7 @@ package com.controller;
 
 import com.entity.User;
 import com.enums.Role;
-import com.request.ChangePasswordRequest;
-import com.request.LoginRequest;
-import com.request.ResetPasswordRequest;
-import com.request.UpdateInfoRequest;
+import com.request.*;
 import com.response.StatusResponse;
 import com.response.UserInfoResponse;
 import com.service.JwtService;
@@ -18,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -98,12 +96,31 @@ public class UserController {
         }
         else return ResponseEntity.status(403).body(new StatusResponse("Wrong OTP"));
     }
-    @GetMapping("/customers")
-    public ResponseEntity<?> getAllCustomers() {
-        return ResponseEntity.status(200).body(userService.getUserByRole(Role.CUSTOMER));
+    @GetMapping("/{role}")
+    public ResponseEntity<?> getAllUserByRole(@PathVariable String role) {
+        try {
+            role = role.toUpperCase();
+            Role roleEnum = Role.valueOf(role);
+            List<User> users = userService.getUserByRole(roleEnum);
+            return ResponseEntity.status(200).body(users);
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(404).body(new StatusResponse("Role invalid"));
+        }
     }
-    @GetMapping("/product_managers")
-    public ResponseEntity<?> getAllProductManager() {
-        return ResponseEntity.status(200).body(userService.getUserByRole(Role.PRODUCT_MANAGER));
+    @PostMapping("/set-role")
+    public ResponseEntity<?> setRole(@RequestBody SetRoleRequest request) {
+        try {
+            Role role = Role.valueOf(request.getRole().toUpperCase());
+            User user = userService.setRole(request.getUserId(), role);
+            if(user != null) {
+                return ResponseEntity.status(200).body(user);
+            }
+            else return ResponseEntity.status(404).body(new StatusResponse("User not found"));
+        }
+        catch(Exception e) {
+            return ResponseEntity.status(404).body(new StatusResponse("Role not found"));
+        }
+
     }
 }

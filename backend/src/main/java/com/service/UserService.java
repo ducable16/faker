@@ -74,4 +74,15 @@ public class UserService {
     public List<User> getUserByRole(Role role) {
         return userRepository.findUsersByRole(role);
     }
+
+    public User setRole(Integer userId, Role role) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setRole(role);
+            userRepository.save(user);
+            return user;
+        }
+        return null;
+    }
 }

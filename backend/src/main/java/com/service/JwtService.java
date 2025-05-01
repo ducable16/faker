@@ -5,6 +5,7 @@ import com.enums.Role;
 import com.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,11 +55,20 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        token = token.trim();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(getSignKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (MalformedJwtException e) {
+            System.out.println("‼ Malformed JWT: " + token);
+            throw e;
+        }
     }
 
     public String extractUsername(String token) {
@@ -66,6 +76,7 @@ public class JwtService {
             token = token.substring(7);
         }
 
+        token = token.trim();
         return Jwts.parser()
                 .setSigningKey(getSignKey())
                 .build()
