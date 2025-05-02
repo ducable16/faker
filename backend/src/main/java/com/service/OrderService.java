@@ -44,6 +44,7 @@ public class OrderService {
         }
         order.setTotalAmount(totalAmount);
         order.setNote(orderRequest.getNote());
+        System.out.println(order.getStatus());
         orderRepository.save(order);
         return order.getOrderId();
     }

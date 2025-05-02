@@ -37,7 +37,7 @@ public class OrderController {
         if(orderCodeReturn != -1) {
             return ResponseEntity.status(200).body(orderService.getOrderById(orderCodeReturn));
         }
-        else return ResponseEntity.status(400).body("Order creation failed");
+        else return ResponseEntity.status(400).body(new StatusResponse("Order creation failed"));
     }
     @GetMapping("/history/{username}")
     public ResponseEntity<?> viewOrderHistory(@PathVariable String username, @RequestHeader("Authorization") String token) {

@@ -55,7 +55,7 @@ public class UserController {
         }
         else return ResponseEntity.status(404).body(new StatusResponse("User not found"));
     }
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam Integer userId, @RequestHeader("Authorization") String token) {
         Optional<User> user = userService.getInfo(token);
         if(user.isPresent()) {
@@ -71,12 +71,8 @@ public class UserController {
     }
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Authorization") String token) {
-//        System.out.println("alalalal");
         Optional<User> user = userService.getInfo(token);
         if(user.isPresent()) {
-//            System.out.println(user.get().getPassword());
-//            System.out.println(user.get().getEmail());
-//            System.out.println(passwordEncoder.encode(request.getOldPassword()));
             if(user.get().getEmail().equals(request.getEmail()) && passwordEncoder.matches(request.getOldPassword(), user.get().getPassword())) {
                 passwordService.changePassword(user.get().getUserId(), request.getNewPassword());
                 return ResponseEntity.status(200).body(new StatusResponse("Password changed successfully"));
