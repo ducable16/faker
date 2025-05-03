@@ -22,8 +22,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     List<Product> findByProductNameContainingIgnoreCase(String productName);
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.variants WHERE p.productId = :productId")
-    Optional<Product> findByIdWithVariants(Integer productId);
-
     List<Product> findProductsByCategoryIdAndBrandId(Integer categoryId, Integer brandId);
 }

@@ -92,5 +92,9 @@ public class OrderController {
             return ResponseEntity.status(400).body(new StatusResponse("Invalid order status"));
         }
     }
+    @GetMapping("/get-items/{orderId}")
+    public ResponseEntity<?> getProductsByOrderId(@PathVariable Integer orderId) {
+        return ResponseEntity.status(200).body(orderService.getProductsByOrderId(orderId));
+    }
 
 }

@@ -41,7 +41,6 @@ public class ProductService {
         dto.setWeight(product.getWeight());
         String category = categoryRepository.findByCategoryId(product.getCategoryId()).get().getCategoryName();
 
-//        System.out.println(category);
         String brand = brandRepository.findByBrandId(product.getBrandId()).get().getBrandName();
         dto.setCategoryName(category);
         dto.setBrandName(brand);

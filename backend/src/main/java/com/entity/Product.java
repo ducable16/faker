@@ -1,6 +1,5 @@
 package com.entity;
 
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +32,7 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "specifications", columnDefinition = "TEXT[]")
+    @Column(name = "specifications", columnDefinition = "TEXT")
     private String specifications;
 
     private Double weight;
