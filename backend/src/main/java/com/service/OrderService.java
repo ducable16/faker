@@ -37,11 +37,7 @@ public class OrderService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
     @Autowired
-    private ProductService productService;
-    @Autowired
-    ProvinceRepository provinceRepository;
-    @Autowired
-    DistrictRepository districtRepository;
+    private CartService cartService;
 
     public Integer createOrder(OrderRequest orderRequest, String token) {
         if(orderRequest.getItems().length == 0) return -1;
@@ -64,6 +60,7 @@ public class OrderService {
         for(Item item : orderRequest.getItems()) {
             OrderItem orderItem = new OrderItem(order.getOrderId(), item.getProductId(), item.getVariantId(), item.getQuantity());
             orderItemRepository.save(orderItem);
+            cartService.removeCartItemWhenCreateOrder(user.getUserId(), item.getProductId(), item.getVariantId());
         }
         return order.getOrderId();
     }

@@ -47,7 +47,7 @@ public class OrderController {
     public ResponseEntity<?> viewOrderHistory(@PathVariable String username, @RequestHeader("Authorization") String token) {
         Optional<User> u = userService.getInfo(token);
         if(u.isPresent()) {
-            if(u.get().getUsername().equals(username) || jwtService.extractRole(token).equals("ADMIN")) {
+            if(u.get().getUsername().equals(username) || jwtService.extractRole(token).equals(Role.ADMIN)) {
                 return ResponseEntity.status(200).body(orderService.getOrderHistory(u.get().getUserId()));
             }
             else return ResponseEntity.status(403).body(new StatusResponse("Access Denied"));

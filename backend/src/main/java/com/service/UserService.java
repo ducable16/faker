@@ -22,6 +22,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtService jwtService;
+    public Optional<User> findById(Integer userId) {return userRepository.findById(userId);}
 
     public Optional<User> findByEmail(String email) {return userRepository.findByEmail(email);}
 
