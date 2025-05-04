@@ -69,37 +69,49 @@ public class OrderService {
     public Long priceCalculate(Long originalPrice, Integer discountPercentage) {
         return originalPrice * (100 - discountPercentage) / 100;
     }
+    public Double totalWeightCalculate(Item[] items) {
+        double weight = 0;
+        for(Item item : items) {
+            Product product = productRepository.findById(item.getProductId()).get();
+            weight += product.getWeight() * item.getQuantity();
+        }
+        return weight;
+    }
 
-    public Integer shippingFeeCalculate(String address, DeliveryMethod deliveryMethod) {
+    public Integer shippingFeeCalculate(String address, Double weight, DeliveryMethod deliveryMethod) {
         String[] shippingAddress = address.split(", ");
         String wardAddress = shippingAddress[0];
         String districtAddress = shippingAddress[1];
         String provinceAddress = shippingAddress[2];
         Province province = provinceRepository.findByName(provinceAddress);
         District district = districtRepository.findByFullName(districtAddress);
+        Integer roundWeight = (int) Math.round(weight);
+        Integer totalAmount = 0;
         if(province.getName().equals("Hà Nội") || province.getName().equals("Hồ Chí Minh")) {
-            if(deliveryMethod.equals(DeliveryMethod.STANDARD)) return 15 * 1000;
-            else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) return 30 * 1000;
+            if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 15 * 1000;
+            else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 30 * 1000;
         }
         else {
             if(district.getAdministrativeUnitId() == 4) {
-                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) return 20 * 1000;
-                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) return 35 * 1000;
+                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 20 * 1000;
+                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 35 * 1000;
             }
             if(district.getAdministrativeUnitId() == 5) {
-                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) return 25 * 1000;
-                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) return 40 * 1000;
+                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 25 * 1000;
+                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 40 * 1000;
             }
             if(district.getAdministrativeUnitId() == 6) {
-                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) return 30 * 1000;
-                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) return 45 * 1000;
+                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 30 * 1000;
+                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 45 * 1000;
             }
             if(district.getAdministrativeUnitId() == 7) {
-                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) return 40 * 1000;
-                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) return 55 * 1000;
+                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 40 * 1000;
+                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 55 * 1000;
             }
         }
-        return 60 * 1000;
+        totalAmount = 60 * 1000;
+        totalAmount = totalAmount + (roundWeight/4 * 10 * 1000);
+        return totalAmount;
     }
     public Optional<Order> getOrderById(Integer orderId) {
         return orderRepository.findOrderByOrderId(orderId);

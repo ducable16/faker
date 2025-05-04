@@ -99,7 +99,8 @@ public class OrderController {
     public ResponseEntity<?> shippingFeeCalculate(@RequestBody ShippingRequest request) {
         try {
             DeliveryMethod deliveryMethod = DeliveryMethod.valueOf(request.getDeliveryMethod().toUpperCase());
-            return ResponseEntity.status(200).body(orderService.shippingFeeCalculate(request.getShippingAddress(), deliveryMethod));
+            Double weight = orderService.totalWeightCalculate(request.getItems());
+            return ResponseEntity.status(200).body(orderService.shippingFeeCalculate(request.getShippingAddress(), weight, deliveryMethod));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(new StatusResponse("Invalid delivery method"));
