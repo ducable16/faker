@@ -56,6 +56,7 @@ public class OrderService {
         }
         order.setTotalAmount(totalAmount);
         order.setNote(orderRequest.getNote());
+        order.setShippingFee(orderRequest.getShippingFee());
         System.out.println(order.getStatus());
         orderRepository.save(order);
 
