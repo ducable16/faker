@@ -34,7 +34,9 @@ public class OrderController {
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request, @RequestHeader("Authorization") String token) {
         Integer orderCodeReturn = orderService.createOrder(request, token);
         if(orderCodeReturn != -1) {
+            System.out.println(orderCodeReturn);
             return ResponseEntity.status(200).body(orderService.getOrderById(orderCodeReturn));
+
         }
         else return ResponseEntity.status(400).body(new StatusResponse("Order creation failed"));
     }

@@ -52,6 +52,7 @@ public class Order {
         paymentMethod = orderRequest.getPaymentMethod();
         deliveryMethod = orderRequest.getDeliveryMethod();
         shippingFee = orderRequest.getShippingFee();
+        note = orderRequest.getNote();
         createdAt = LocalDateTime.now();
     }
 }
