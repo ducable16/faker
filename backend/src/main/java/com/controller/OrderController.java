@@ -11,6 +11,7 @@ import com.request.OrderRequest;
 import com.response.StatusResponse;
 import com.service.JwtService;
 import com.service.OrderService;
+import com.service.ShippingService;
 import com.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,8 @@ public class OrderController {
     private UserService userService;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private ShippingService shippingService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request, @RequestHeader("Authorization") String token) {
@@ -101,8 +104,9 @@ public class OrderController {
     public ResponseEntity<?> shippingFeeCalculate(@RequestBody ShippingRequest request) {
         try {
             DeliveryMethod deliveryMethod = DeliveryMethod.valueOf(request.getDeliveryMethod().toUpperCase());
-            Double weight = orderService.totalWeightCalculate(request.getItems());
-            return ResponseEntity.status(200).body(orderService.shippingFeeCalculate(request.getShippingAddress(), weight, deliveryMethod));
+            Double weight = shippingService.totalWeightCalculate(request.getItems());
+            if(weight == null) return ResponseEntity.status(404).body(new StatusResponse("Cannot find product(s)"));
+            return ResponseEntity.status(200).body(shippingService.calculateShippingFee(request.getShippingAddress(), weight, deliveryMethod));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(new StatusResponse("Invalid delivery method"));
