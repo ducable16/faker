@@ -2,17 +2,16 @@ package com.controller;
 
 import com.entity.Order;
 import com.entity.User;
+import com.enums.DeliveryMethod;
 import com.enums.OrderStatus;
 import com.enums.Role;
-import com.repository.OrderRepository;
 import com.request.ApplyStatusRequest;
+import com.request.ShippingRequest;
 import com.request.OrderRequest;
 import com.response.StatusResponse;
-import com.response.UserInfoResponse;
 import com.service.JwtService;
 import com.service.OrderService;
 import com.service.UserService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -95,6 +94,16 @@ public class OrderController {
     @GetMapping("/get-items/{orderId}")
     public ResponseEntity<?> getProductsByOrderId(@PathVariable Integer orderId) {
         return ResponseEntity.status(200).body(orderService.getProductsByOrderId(orderId));
+    }
+    @PostMapping("/shipping-fee")
+    public ResponseEntity<?> shippingFeeCalculate(@RequestBody ShippingRequest request) {
+        try {
+            DeliveryMethod deliveryMethod = DeliveryMethod.valueOf(request.getDeliveryMethod().toUpperCase());
+            return ResponseEntity.status(200).body(orderService.shippingFeeCalculate(request.getShippingAddress(), deliveryMethod));
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(new StatusResponse("Invalid delivery method"));
+        }
     }
 
 }

@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/order/status/**").hasAnyRole("ADMIN")
                         .requestMatchers("/order/approve/").hasAnyRole("ADMIN")
                         .requestMatchers("/order/view/all").hasAnyRole("ADMIN")
+                        .requestMatchers("/order/shipping-fee").permitAll()
                         .requestMatchers("/order/**").authenticated()
                         .requestMatchers("/cart-item/check").permitAll()
                         .requestMatchers("/cart-item/**").authenticated()

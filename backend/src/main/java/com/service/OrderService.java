@@ -48,8 +48,6 @@ public class OrderService {
         User user = userService.getInfo(token).get();
         Order order = new Order(orderRequest, user.getUserId());
         System.out.println(order.getOrderId());
-        order.setShippingFee(shippingFeeCalculate(orderRequest));
-
         Long totalAmount = 0L;
         for(Item item : orderRequest.getItems()) {
             ProductVariant productVariant = productVariantRepository.findById(item.getVariantId()).get();
@@ -72,14 +70,13 @@ public class OrderService {
         return originalPrice * (100 - discountPercentage) / 100;
     }
 
-    public Integer shippingFeeCalculate(OrderRequest orderRequest) {
-        String[] shippingAddress = orderRequest.getShippingAddress().split(", ");
+    public Integer shippingFeeCalculate(String address, DeliveryMethod deliveryMethod) {
+        String[] shippingAddress = address.split(", ");
         String wardAddress = shippingAddress[0];
         String districtAddress = shippingAddress[1];
         String provinceAddress = shippingAddress[2];
         Province province = provinceRepository.findByName(provinceAddress);
         District district = districtRepository.findByFullName(districtAddress);
-        DeliveryMethod deliveryMethod = orderRequest.getDeliveryMethod();
         if(province.getName().equals("Hà Nội") || province.getName().equals("Hồ Chí Minh")) {
             if(deliveryMethod.equals(DeliveryMethod.STANDARD)) return 15 * 1000;
             else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) return 30 * 1000;

@@ -51,6 +51,7 @@ public class Order {
         shippingAddress = orderRequest.getShippingAddress();
         paymentMethod = orderRequest.getPaymentMethod();
         deliveryMethod = orderRequest.getDeliveryMethod();
+        shippingFee = orderRequest.getShippingFee();
         createdAt = LocalDateTime.now();
     }
 }
