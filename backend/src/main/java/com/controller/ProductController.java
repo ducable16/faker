@@ -98,7 +98,7 @@ public class ProductController {
 //    public ResponseEntity<?> searchProductsInRange(@RequestBody SearchFilterRequest request) {
 //        return ResponseEntity.status(200).body(productService.searchProductsByPriceRange(request.getLowerBound(), request.getUpperBound()));
 //    }
-    @PostMapping("/filter-search")
+    @PostMapping("/filter")
     public ResponseEntity<?> searchProductsInFilter(@RequestBody SearchFilterRequest request) {
         return ResponseEntity.status(200).body(productService.searchProductsWithFilter(request));
     }
