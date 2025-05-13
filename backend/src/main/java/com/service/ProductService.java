@@ -3,6 +3,8 @@ package com.service;
 import com.entity.Category;
 import com.entity.Product;
 import com.entity.ProductVariant;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.repository.BrandRepository;
 import com.repository.CategoryRepository;
 import com.repository.ProductRepository;
@@ -12,6 +14,7 @@ import com.repository.ProductVariantRepository;
 import com.request.ProductQuantityCheckRequest;
 import com.request.ProductRequest;
 import com.request.ProductVariantRequest;
+import com.request.SearchFilterRequest;
 import com.response.ProductQuantityCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,10 +61,11 @@ public class ProductService {
         dto.setVariants(variantDTOs);
         return dto;
     }
+
     public Product toEntity(ProductRequest request) {
         // Tạo Product
         Product product = new Product();
-        if(request.getProductId() != null) {
+        if (request.getProductId() != null) {
             product.setProductId(request.getProductId());
         }
         product.setProductName(request.getProductName());
@@ -76,34 +80,33 @@ public class ProductService {
         product.setBrandId(brandId);
         product.setSupportRushOrder(request.getSupportRushOrder());
 
-        List<ProductVariant> variants = request.getVariants().stream()
-                .map(variantReq -> {
-                    ProductVariant variant = new ProductVariant();
-                    variant.setVariantId(variantReq.getVariantId());
-                    variant.setColor(variantReq.getColor());
-                    variant.setDiscountPercentage(variantReq.getDiscountPercentage());
-                    variant.setStockQuantity(variantReq.getStockQuantity());
-                    variant.setImageUrl(variantReq.getImageUrl());
-                    variant.setProduct(product);
-                    return variant;
-                })
-                .collect(Collectors.toList());
+        List<ProductVariant> variants = request.getVariants().stream().map(variantReq -> {
+            ProductVariant variant = new ProductVariant();
+            variant.setVariantId(variantReq.getVariantId());
+            variant.setColor(variantReq.getColor());
+            variant.setDiscountPercentage(variantReq.getDiscountPercentage());
+            variant.setStockQuantity(variantReq.getStockQuantity());
+            variant.setImageUrl(variantReq.getImageUrl());
+            variant.setProduct(product);
+            return variant;
+        }).collect(Collectors.toList());
 
         product.setVariants(variants);
         return product;
     }
+
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
     public Product getProductByProductName(String productName) {
         return productRepository.findByProductName(productName).get();
     }
 
     public boolean addProduct(ProductRequest request) {
-        if(productRepository.findByProductName(request.getProductName()).isPresent()) {
+        if (productRepository.findByProductName(request.getProductName()).isPresent()) {
             return false;
-        }
-        else{
+        } else {
             Product product = toEntity(request);
             productRepository.save(product);
             return true;
@@ -111,7 +114,7 @@ public class ProductService {
     }
 
     public boolean deleteProduct(Integer productId) {
-        if(productRepository.findById(productId).isPresent()) {
+        if (productRepository.findById(productId).isPresent()) {
             productRepository.deleteById(productId);
             return true;
         }
@@ -126,7 +129,7 @@ public class ProductService {
         product.setWeight(request.getWeight());
         product.setPrice(request.getPrice());
         product.setSupportRushOrder(request.getSupportRushOrder());
-        if(request.getIsActive() != null) {
+        if (request.getIsActive() != null) {
             product.setIsActive(request.getIsActive());
         }
 
@@ -136,10 +139,7 @@ public class ProductService {
         product.setBrandId(brandId);
         product.setUpdatedAt(LocalDateTime.now());
 
-        Set<Integer> updatedVariantIds = request.getVariants().stream()
-                .filter(v -> v.getVariantId() != null)
-                .map(ProductVariantRequest::getVariantId)
-                .collect(Collectors.toSet());
+        Set<Integer> updatedVariantIds = request.getVariants().stream().filter(v -> v.getVariantId() != null).map(ProductVariantRequest::getVariantId).collect(Collectors.toSet());
 
 
         Iterator<ProductVariant> iterator = product.getVariants().iterator();
@@ -151,15 +151,12 @@ public class ProductService {
         }
 
         for (ProductVariantRequest variantReq : request.getVariants()) {
-            ProductVariant variant = product.getVariants().stream()
-                    .filter(v -> v.getVariantId() != null && v.getVariantId().equals(variantReq.getVariantId()))
-                    .findFirst()
-                    .orElseGet(() -> {
-                        ProductVariant newVariant = new ProductVariant();
-                        newVariant.setProduct(product);
-                        product.getVariants().add(newVariant);
-                        return newVariant;
-                    });
+            ProductVariant variant = product.getVariants().stream().filter(v -> v.getVariantId() != null && v.getVariantId().equals(variantReq.getVariantId())).findFirst().orElseGet(() -> {
+                ProductVariant newVariant = new ProductVariant();
+                newVariant.setProduct(product);
+                product.getVariants().add(newVariant);
+                return newVariant;
+            });
             variant.setColor(variantReq.getColor());
             variant.setImageUrl(variantReq.getImageUrl());
             variant.setStockQuantity(variantReq.getStockQuantity());
@@ -169,24 +166,23 @@ public class ProductService {
     }
 
     public ProductDTO getProductById(Integer productId) {
-        if(productRepository.findById(productId).isPresent()) {
-            return  toDTO(productRepository.findById(productId).get());
+        if (productRepository.findById(productId).isPresent()) {
+            return toDTO(productRepository.findById(productId).get());
         }
         return null;
     }
 
     public List<ProductDTO> getProductsByCategory(String categoryName) {
         Optional<Category> category = categoryRepository.findByCategoryNameIgnoreCase(categoryName);
-        if(category.isPresent()) {
+        if (category.isPresent()) {
             List<Product> products = productRepository.findByCategoryId(category.get().getCategoryId());
             List<ProductDTO> productDTOs = new ArrayList<>();
-            for(Product product : products) {
+            for (Product product : products) {
                 ProductDTO dto = toDTO(product);
                 productDTOs.add(dto);
             }
             return productDTOs;
-        }
-        else return null;
+        } else return null;
 
     }
 
@@ -194,7 +190,7 @@ public class ProductService {
 
         List<Product> products = productRepository.findByProductNameContainingIgnoreCase(search);
         List<ProductDTO> productDTOs = new ArrayList<>();
-        for(Product product : products) {
+        for (Product product : products) {
             ProductDTO dto = toDTO(product);
             productDTOs.add(dto);
         }
@@ -208,7 +204,7 @@ public class ProductService {
 
         List<Product> products = productRepository.findProductsByCategoryIdAndBrandId(categoryId, brandId);
         List<ProductDTO> productDTOs = new ArrayList<>();
-        for(Product product : products) {
+        for (Product product : products) {
             ProductDTO dto = toDTO(product);
             productDTOs.add(dto);
         }
@@ -218,13 +214,12 @@ public class ProductService {
     public ProductQuantityCheckResponse checkProductQuantity(ProductQuantityCheckRequest request) {
         ProductQuantityCheckResponse response = new ProductQuantityCheckResponse();
         Optional<ProductVariant> productVariant = productVariantRepository.findByVariantIdAndProduct_ProductId(request.getVariantId(), request.getProductId());
-        if(productVariant.isPresent()) {
+        if (productVariant.isPresent()) {
             response.setProductId(request.getProductId());
             response.setVariantId(request.getVariantId());
             response.setQuantity(productVariant.get().getStockQuantity());
             return response;
-        }
-        else return null;
+        } else return null;
     }
 
     public boolean deleteVariant(Integer variantId) {
@@ -234,13 +229,64 @@ public class ProductService {
         productVariantRepository.deleteById(variantId);
         return true;
     }
-    public List<ProductDTO> searchProductsByPriceRange(String brandName) {}
 
+//    public List<ProductDTO> searchProductsByPriceRange(Long lowerBound, Long upperBound) {
+//        List<Product> productList = productRepository.findProductsByPriceInRange(lowerBound, upperBound);
+//        List<ProductDTO> productDTOs = new ArrayList<>();
+//        for (Product product : productList) {
+//            ProductDTO dto = toDTO(product);
+//            productDTOs.add(dto);
+//        }
+//        return productDTOs;
+//    }
 
+    private boolean matchSpecifications(String jsonSpec, SearchFilterRequest request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
 
+            return matchesField(specs, "Công nghệ CPU", request.getCpu()) &&
+                    matchesField(specs, "RAM", request.getMemory()) &&
+                    matchesField(specs, "Ổ cứng", request.getStorage()) &&
+                    matchesField(specs, "Màn hình", request.getDisplaySize()) &&
+                    matchesField(specs, "Độ phân giải", request.getDisplayResolution()) &&
+                    matchesField(specs, "Thông tin Pin", request.getBattery()) &&
+                    matchesField(specs, "Công suất sạc", request.getChargingCapacity()) &&
+                    matchesField(specs, "Tần số quét", request.getRefreshRate());
 
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
+    private boolean matchesField(List<Map<String, String>> specs, String title, String expectedValue) {
+        if (expectedValue == null) return true;
+        return specs.stream()
+                .anyMatch(spec -> title.equalsIgnoreCase(spec.get("title")) && expectedValue.equalsIgnoreCase(spec.get("content")));
+    }
 
+    public List<Product> getProductsWithFilter(SearchFilterRequest request) {
+        List<Product> allProducts = productRepository.findAll();
 
+        return allProducts.stream()
+                .filter(product -> matchSpecifications(product.getSpecifications(), request))
+                .filter(product -> {
+                    if (request.getLowerBound() != null && request.getUpperBound() != null) {
+                        return product.getPrice() >= request.getLowerBound() && product.getPrice() <= request.getUpperBound();
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request) {
+        List<Product> products = getProductsWithFilter(request);
+        List<ProductDTO> productDTOs = new ArrayList<>();
+        for (Product product : products) {
+            productDTOs.add(toDTO(product));
+        }
+        return productDTOs;
+
+    }
 
 }

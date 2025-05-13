@@ -1,0 +1,28 @@
+package com.request;
+
+import lombok.Data;
+
+@Data
+public class SearchFilterRequest {
+    private Integer productId;
+
+    private Long lowerBound;
+
+    private Long upperBound;
+
+    private String storage;
+
+    private String cpu;
+
+    private String memory;
+
+    private String displaySize;
+
+    private String displayResolution;
+
+    private String battery;
+
+    private String chargingCapacity;
+
+    private String refreshRate;
+}
