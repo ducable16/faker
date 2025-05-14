@@ -15,11 +15,11 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
 
-    public Optional<Product> findByProductId(Integer productId);
+    Optional<Product> findByProductId(Integer productId);
 
-    public Optional<Product> findByProductName(String productName);
+    Optional<Product> findByProductName(String productName);
 
-    public List<Product> findByCategoryId(Integer categoryId);
+    List<Product> findByCategoryId(Integer categoryId);
 
     List<Product> findByProductNameContainingIgnoreCase(String productName);
 

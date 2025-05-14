@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class SearchFilterRequest {
+    private String type;
+
     private Integer productId;
 
     private Long lowerBound;
@@ -25,4 +27,10 @@ public class SearchFilterRequest {
     private String chargingCapacity;
 
     private String refreshRate;
+
+    private String graphicsCard;
+
+    private String operatingSystem;
+
+    private String weight;
 }
