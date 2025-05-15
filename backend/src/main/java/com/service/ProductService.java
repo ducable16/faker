@@ -510,7 +510,6 @@ public class ProductService {
             System.out.println(spec.toString());
             String specTitle = spec.get("title");
             String specContent = spec.get("content");
-//            System.out.println(specTitle + " " + specContent);
             if (specTitle != null && specContent != null) {
                 for (String title : titleList) {
                     if (similarTo(title, specTitle)) {
@@ -550,109 +549,78 @@ public class ProductService {
         return false;
     }
 
-    // Các phương thức xử lý đặc biệt cho từng loại field
     private boolean matchCpu(String content, String expected) {
-        // Xử lý các tên CPU khác nhau: Apple M1, Intel Core i5-13450HX, etc.
-        String simplifiedContent = content.replaceAll("[^a-z0-9 ]", "").trim();
-        String simplifiedExpected = expected.replaceAll("[^a-z0-9 ]", "").trim();
-
-        return simplifiedContent.equals(simplifiedExpected) ||
-                simplifiedContent.contains(simplifiedExpected) ||
-                simplifiedExpected.contains(simplifiedContent);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchMemory(String content, String expected) {
-        System.out.println(content + ">>>>" + expected);
-        // Xử lý các định dạng RAM: 8GB, 8 GB, 16GB DDR5, etc.
-        String contentNum = content.replaceAll("[^0-9]", "");
-        String expectedNum = expected.replaceAll("[^0-9]", "");
-        System.out.println(contentNum + ">>>>" + expectedNum);
-        return !contentNum.isEmpty() && contentNum.equals(expectedNum);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchStorage(String content, String expected) {
-        // Xử lý các định dạng lưu trữ: 256GB SSD, 512 GB, 1TB HDD, etc.
-        String contentNum = content.replaceAll("[^0-9]", "");
-        String expectedNum = expected.replaceAll("[^0-9]", "");
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
 
-        if (contentNum.isEmpty() || expectedNum.isEmpty()) return false;
-
-        // Xử lý trường hợp TB -> GB
-        if (content.contains("tb") && !expected.contains("tb")) {
+        // Xử lý đặc biệt cho chuyển đổi TB sang GB
+        if (lowerContent.contains("tb") && !lowerExpected.contains("tb")) {
+            String tbValue = lowerContent.replaceAll("[^0-9.]", "");
+            String gbValue = lowerExpected.replaceAll("[^0-9.]", "");
             try {
-                double tbValue = Double.parseDouble(contentNum);
-                int gbValue = (int)(tbValue * 1000);
-                return String.valueOf(gbValue).equals(expectedNum);
+                double tb = Double.parseDouble(tbValue);
+                double gb = Double.parseDouble(gbValue);
+                return Math.abs(tb * 1000 - gb) < 1; // Sai số nhỏ hơn 1GB
             } catch (NumberFormatException e) {
                 return false;
             }
         }
 
-        return contentNum.equals(expectedNum);
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchDisplaySize(String content, String expected) {
-        // Xử lý kích thước màn hình: 13.3", 15.6 inch, etc.
-        String contentNum = content.replaceAll("[^0-9.]", "");
-        String expectedNum = expected.replaceAll("[^0-9.]", "");
-        return !contentNum.isEmpty() && contentNum.equals(expectedNum);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchDisplayResolution(String content, String expected) {
-        // Xử lý độ phân giải: Retina (2560x1600), Full HD (1920x1080), etc.
-        String simplifiedContent = content.replaceAll("[^0-9x]", "").toLowerCase();
-        String simplifiedExpected = expected.replaceAll("[^0-9x]", "").toLowerCase();
-
-        if (simplifiedContent.isEmpty() || simplifiedExpected.isEmpty()) {
-            return content.toLowerCase().contains(expected.toLowerCase()) ||
-                    expected.toLowerCase().contains(content.toLowerCase());
-        }
-
-        return simplifiedContent.equals(simplifiedExpected);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchGraphics(String content, String expected) {
-        // Xử lý card đồ họa: NVIDIA RTX 3050, Intel Iris Xe, etc.
-        String simplifiedContent = content.replaceAll("[^a-z0-9 ]", "").trim();
-        String simplifiedExpected = expected.replaceAll("[^a-z0-9 ]", "").trim();
-
-        return simplifiedContent.equals(simplifiedExpected) ||
-                simplifiedContent.contains(simplifiedExpected) ||
-                simplifiedExpected.contains(simplifiedContent);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchOs(String content, String expected) {
-        // Xử lý hệ điều hành: Windows 11, macOS, etc.
-        return content.equalsIgnoreCase(expected) ||
-                content.toLowerCase().contains(expected.toLowerCase());
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchBattery(String content, String expected) {
-        // Xử lý pin: 4422 mAh, Lên đến 18 giờ, 60 Wh, etc.
-        String contentNum = content.replaceAll("[^0-9]", "");
-        String expectedNum = expected.replaceAll("[^0-9]", "");
-
-        if (!contentNum.isEmpty() && !expectedNum.isEmpty()) {
-            return contentNum.equals(expectedNum);
-        }
-
-        // Xử lý trường hợp mô tả thời lượng pin
-        return content.toLowerCase().contains(expected.toLowerCase()) ||
-                expected.toLowerCase().contains(content.toLowerCase());
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchWeight(String content, String expected) {
-        // Xử lý trọng lượng: 1.29 kg, 2.38kg, etc.
-        String contentNum = content.replaceAll("[^0-9.]", "");
-        String expectedNum = expected.replaceAll("[^0-9.]", "");
-        return !contentNum.isEmpty() && contentNum.equals(expectedNum);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean matchRefreshRate(String content, String expected) {
-        // Xử lý tần số quét: 120Hz, 144 Hz, etc.
-        String contentNum = content.replaceAll("[^0-9]", "");
-        String expectedNum = expected.replaceAll("[^0-9]", "");
-        return !contentNum.isEmpty() && contentNum.equals(expectedNum);
+        String lowerContent = content.toLowerCase();
+        String lowerExpected = expected.toLowerCase();
+        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
     private boolean similarTo(String title1, String title2) {
