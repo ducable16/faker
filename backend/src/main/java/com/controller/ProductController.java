@@ -100,11 +100,11 @@ public class ProductController {
 //    }
     @PostMapping("/filter")
     public ResponseEntity<?> searchProductsInFilter(@RequestBody SearchFilterRequest request) {
-        Integer type = 0;
-        if(request.getType().equalsIgnoreCase("smartphone")) type = 0;
-        else if(request.getType().equalsIgnoreCase("laptop")) type = 1;
-        else return ResponseEntity.status(404).body(new StatusResponse("Type not supported"));
-        return ResponseEntity.status(200).body(productService.searchProductsWithFilter(request, 1));
+        request.setType(request.getType().toLowerCase());
+        if(!request.getType().equalsIgnoreCase("smartphone") && !request.getType().equalsIgnoreCase("laptop"))
+            return ResponseEntity.status(404).body(new StatusResponse("Type not supported"));
+
+        return ResponseEntity.status(200).body(productService.searchProductsWithFilter(request));
     }
 
 }

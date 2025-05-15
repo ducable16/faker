@@ -6,8 +6,6 @@ import lombok.Data;
 public class SearchFilterRequest {
     private String type;
 
-    private Integer productId;
-
     private Long lowerBound;
 
     private Long upperBound;
@@ -18,19 +16,19 @@ public class SearchFilterRequest {
 
     private String memory;
 
-    private String displaySize;
+//    private String displaySize;
 
-    private String displayResolution;
+//    private String displayResolution;
 
-    private String battery;
+//    private String battery;
 
-    private String chargingCapacity;
+//    private String chargingCapacity;
 
     private String refreshRate;
 
-    private String graphicsCard;
+//    private String graphicsCard;
 
-    private String operatingSystem;
+//    private String operatingSystem;
 
-    private String weight;
+//    private String weight;
 }

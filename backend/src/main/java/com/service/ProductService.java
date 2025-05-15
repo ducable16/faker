@@ -298,34 +298,6 @@ public class ProductService {
         return true;
     }
 
-//    public List<ProductDTO> searchProductsByPriceRange(Long lowerBound, Long upperBound) {
-//        List<Product> productList = productRepository.findProductsByPriceInRange(lowerBound, upperBound);
-//        List<ProductDTO> productDTOs = new ArrayList<>();
-//        for (Product product : productList) {
-//            ProductDTO dto = toDTO(product);
-//            productDTOs.add(dto);
-//        }
-//        return productDTOs;
-//    }
-
-    private boolean matchSpecificationsSmartPhone(String jsonSpec, SearchFilterRequest request) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, String>> specs = parseSpecifications(jsonSpec);
-
-            return matchesField(specs, Arrays.asList("Công nghệ CPU", "CPU", "Loại CPU", "Vi xử lý", "Chip xử lý (CPU)", "Chip xử lý"), request.getCpu()) &&
-                    matchesField(specs, Arrays.asList("RAM", "Bộ nhớ RAM", "Dung lượng RAM"), request.getMemory()) &&
-                    matchesField(specs, Arrays.asList("Ổ cứng", "Dung lượng ổ cứng", "Bộ nhớ trong", "Lưu trữ", "Dung lượng lưu trữ"), request.getStorage()) &&
-                    matchesField(specs, Arrays.asList("Màn hình", "Kích thước màn hình", "Màn hình rộng", "Độ lớn màn hình", "Kích thước"), request.getDisplaySize()) &&
-                    matchesField(specs, Arrays.asList("Độ phân giải", "Độ phân giải màn hình", "Resolution"), request.getDisplayResolution()) &&
-                    matchesField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate"), request.getRefreshRate()) &&
-                    matchesField(specs, Arrays.asList("Hỗ trợ sạc tối đa", "Công suất sạc", "Sạc nhanh"), request.getChargingCapacity()) &&
-                    matchesField(specs, Arrays.asList("Thông tin Pin", "Pin", "Dung lượng pin", "Thời lượng pin", "Dung lượng"), request.getBattery());
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     private String normalize(String input) {
         if (input == null) return "";
         return input.trim().toLowerCase()
@@ -348,12 +320,6 @@ public class ProductService {
                 for (String title : titleList) {
                     if (title.equalsIgnoreCase(specTitle)) {
                         String normalizedContent = normalize(specContent);
-
-                        // Xử lý đặc biệt cho các trường hợp như dung lượng pin
-                        if (isBatteryField(titleList) && isBatteryMatch(normalizedContent, normalizedExpected)) {
-                            return true;
-                        }
-
                         // Xử lý chung
                         if (normalizedContent.equals(normalizedExpected) ||
                                 normalizedContent.contains(normalizedExpected) ||
@@ -399,11 +365,45 @@ public class ProductService {
 
     public List<Product> getProductsWithFilterSmartPhone(SearchFilterRequest request) {
         List<Product> allProducts = productRepository.findByCategoryId(3);
-        return allProducts.stream()
-                .filter(product -> matchSpecificationsSmartPhone(product.getSpecifications(), request))
-                .collect(Collectors.toList());
+        List<Product> filteredProducts = new ArrayList<>();
+
+        // Duyệt qua từng sản phẩm trong danh sách
+        for (Product product : allProducts) {
+            if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
+            // Lấy thông số kỹ thuật của sản phẩm
+            String specifications = product.getSpecifications();
+
+            // Kiểm tra xem sản phẩm có khớp với các tiêu chí filter không
+            boolean isMatch = matchSpecificationsSmartPhone(specifications, request);
+
+            // Nếu khớp thì thêm vào danh sách kết quả
+            if (isMatch) {
+                System.out.println("hehehe");
+                filteredProducts.add(product);
+            }
+        }
+
+        // Trả về danh sách sản phẩm đã lọc
+        return filteredProducts;
     }
-    private static int cnt = 0;
+
+
+    public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request) {
+        List<Product> products = new ArrayList<>();
+        if(request.getType().equalsIgnoreCase("smartphone")) products = getProductsWithFilterSmartPhone(request);
+        if(request.getType().equalsIgnoreCase("laptop")) products = getProductsWithFilterLaptop(request);
+        if(request.getLowerBound() == null) request.setLowerBound(0L);
+        if(request.getUpperBound() == null) request.setUpperBound((long) 1e15);
+        List<ProductDTO> productDTOs = new ArrayList<>();
+        for (Product product : products) {
+            productDTOs.add(toDTO(product));
+        }
+        return productDTOs;
+
+    }
+
+    // deepseek laptop----------------------------------------------------------------------------------------
+
     public List<Product> getProductsWithFilterLaptop(SearchFilterRequest request) {
         // Lấy tất cả sản phẩm thuộc danh mục Laptop (categoryId = 1)
         List<Product> allProducts = productRepository.findByCategoryId(1);
@@ -411,7 +411,7 @@ public class ProductService {
 
         // Duyệt qua từng sản phẩm trong danh sách
         for (Product product : allProducts) {
-            cnt++;
+            if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
             // Lấy thông số kỹ thuật của sản phẩm
             String specifications = product.getSpecifications();
 
@@ -428,21 +428,6 @@ public class ProductService {
         // Trả về danh sách sản phẩm đã lọc
         return filteredProducts;
     }
-
-    public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request, Integer type) {
-        List<Product> products = new ArrayList<>();
-        if(type == 0) products = getProductsWithFilterSmartPhone(request);
-        if(type == 1) products = getProductsWithFilterLaptop(request);
-
-        List<ProductDTO> productDTOs = new ArrayList<>();
-        for (Product product : products) {
-            productDTOs.add(toDTO(product));
-        }
-        return productDTOs;
-
-    }
-
-    // deepseek----------------------------------------------------------------------------------------
 
     private boolean matchSpecificationsLaptop(String jsonSpec, SearchFilterRequest request) {
         try {
@@ -461,29 +446,29 @@ public class ProductService {
                                     "Ổ cứng", "Storage", "Bộ nhớ trong", "SSD", "HDD", "Dung lượng lưu trữ", "Hard Drive", "Loại ổ cứng"),
                             request.getStorage(), FieldType.STORAGE) &&
 
-                    matchesField(specs, Arrays.asList(
-                                    "Màn hình", "Kích thước màn hình", "Display", "Screen Size", "Màn hình rộng"),
-                            request.getDisplaySize(), FieldType.DISPLAY_SIZE) &&
-
-                    matchesField(specs, Arrays.asList(
-                                    "Độ phân giải", "Resolution", "Screen Resolution"),
-                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION) &&
-
-                    matchesField(specs, Arrays.asList(
-                                    "Card màn hình", "GPU", "VGA", "Đồ họa", "Graphics", "Graphics Card", "Card đồ họa"),
-                            request.getGraphicsCard(), FieldType.GRAPHICS) &&
-
-                    matchesField(specs, Arrays.asList(
-                                    "Hệ điều hành", "OS", "Operating System"),
-                            request.getOperatingSystem(), FieldType.OS) &&
-
-                    matchesField(specs, Arrays.asList(
-                                    "Pin", "Battery", "Thời lượng pin", "Dung lượng pin", "Battery Life", "Thông tin Pin"),
-                            request.getBattery(), FieldType.BATTERY) &&
-
-                    matchesField(specs, Arrays.asList(
-                                    "Khối lượng", "Trọng lượng", "Weight"),
-                            request.getWeight(), FieldType.WEIGHT) &&
+//                    matchesField(specs, Arrays.asList(
+//                                    "Màn hình", "Kích thước màn hình", "Display", "Screen Size", "Màn hình rộng"),
+//                            request.getDisplaySize(), FieldType.DISPLAY_SIZE) &&
+//
+//                    matchesField(specs, Arrays.asList(
+//                                    "Độ phân giải", "Resolution", "Screen Resolution"),
+//                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION) &&
+//
+//                    matchesField(specs, Arrays.asList(
+//                                    "Card màn hình", "GPU", "VGA", "Đồ họa", "Graphics", "Graphics Card", "Card đồ họa"),
+//                            request.getGraphicsCard(), FieldType.GRAPHICS) &&
+//
+//                    matchesField(specs, Arrays.asList(
+//                                    "Hệ điều hành", "OS", "Operating System"),
+//                            request.getOperatingSystem(), FieldType.OS) &&
+//
+//                    matchesField(specs, Arrays.asList(
+//                                    "Pin", "Battery", "Thời lượng pin", "Dung lượng pin", "Battery Life", "Thông tin Pin"),
+//                            request.getBattery(), FieldType.BATTERY) &&
+//
+//                    matchesField(specs, Arrays.asList(
+//                                    "Khối lượng", "Trọng lượng", "Weight"),
+//                            request.getWeight(), FieldType.WEIGHT) &&
 
                     matchesField(specs, Arrays.asList(
                                     "Tần số quét", "Refresh rate"),
@@ -494,8 +479,16 @@ public class ProductService {
     }
 
     enum FieldType {
-        CPU, MEMORY, STORAGE, DISPLAY_SIZE, DISPLAY_RESOLUTION,
-        GRAPHICS, OS, BATTERY, WEIGHT, REFRESH_RATE
+        CPU,
+        MEMORY,
+        STORAGE,
+        REFRESH_RATE,
+//        DISPLAY_RESOLUTION,
+//        DISPLAY_SIZE,
+//        GRAPHICS,
+//        OS,
+//        BATTERY,
+//        WEIGHT
     }
 
     private boolean matchesField(List<Map<String, String>> specs, List<String> titleList,
@@ -523,18 +516,18 @@ public class ProductService {
                                 return matchMemory(normalizedContent, normalizedExpected);
                             case STORAGE:
                                 return matchStorage(normalizedContent, normalizedExpected);
-                            case DISPLAY_SIZE:
-                                return matchDisplaySize(normalizedContent, normalizedExpected);
-                            case DISPLAY_RESOLUTION:
-                                return matchDisplayResolution(normalizedContent, normalizedExpected);
-                            case GRAPHICS:
-                                return matchGraphics(normalizedContent, normalizedExpected);
-                            case OS:
-                                return matchOs(normalizedContent, normalizedExpected);
-                            case BATTERY:
-                                return matchBattery(normalizedContent, normalizedExpected);
-                            case WEIGHT:
-                                return matchWeight(normalizedContent, normalizedExpected);
+//                            case DISPLAY_SIZE:
+//                                return matchDisplaySize(normalizedContent, normalizedExpected);
+//                            case DISPLAY_RESOLUTION:
+//                                return matchDisplayResolution(normalizedContent, normalizedExpected);
+//                            case GRAPHICS:
+//                                return matchGraphics(normalizedContent, normalizedExpected);
+//                            case OS:
+//                                return matchOs(normalizedContent, normalizedExpected);
+//                            case BATTERY:
+//                                return matchBattery(normalizedContent, normalizedExpected);
+//                            case WEIGHT:
+//                                return matchWeight(normalizedContent, normalizedExpected);
                             case REFRESH_RATE:
                                 return matchRefreshRate(normalizedContent, normalizedExpected);
                             default:
@@ -581,41 +574,41 @@ public class ProductService {
         return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
-    private boolean matchDisplaySize(String content, String expected) {
-        String lowerContent = content.toLowerCase();
-        String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-    }
-
-    private boolean matchDisplayResolution(String content, String expected) {
-        String lowerContent = content.toLowerCase();
-        String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-    }
-
-    private boolean matchGraphics(String content, String expected) {
-        String lowerContent = content.toLowerCase();
-        String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-    }
-
-    private boolean matchOs(String content, String expected) {
-        String lowerContent = content.toLowerCase();
-        String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-    }
-
-    private boolean matchBattery(String content, String expected) {
-        String lowerContent = content.toLowerCase();
-        String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-    }
-
-    private boolean matchWeight(String content, String expected) {
-        String lowerContent = content.toLowerCase();
-        String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-    }
+//    private boolean matchDisplaySize(String content, String expected) {
+//        String lowerContent = content.toLowerCase();
+//        String lowerExpected = expected.toLowerCase();
+//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+//    }
+//
+//    private boolean matchDisplayResolution(String content, String expected) {
+//        String lowerContent = content.toLowerCase();
+//        String lowerExpected = expected.toLowerCase();
+//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+//    }
+//
+//    private boolean matchGraphics(String content, String expected) {
+//        String lowerContent = content.toLowerCase();
+//        String lowerExpected = expected.toLowerCase();
+//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+//    }
+//
+//    private boolean matchOs(String content, String expected) {
+//        String lowerContent = content.toLowerCase();
+//        String lowerExpected = expected.toLowerCase();
+//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+//    }
+//
+//    private boolean matchBattery(String content, String expected) {
+//        String lowerContent = content.toLowerCase();
+//        String lowerExpected = expected.toLowerCase();
+//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+//    }
+//
+//    private boolean matchWeight(String content, String expected) {
+//        String lowerContent = content.toLowerCase();
+//        String lowerExpected = expected.toLowerCase();
+//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+//    }
 
     private boolean matchRefreshRate(String content, String expected) {
         String lowerContent = content.toLowerCase();
@@ -631,5 +624,61 @@ public class ProductService {
                 norm2.contains(norm1) ||
                 norm1.replaceAll("[^a-z0-9]", "").equals(norm2.replaceAll("[^a-z0-9]", ""));
     }
+
+    // deepseek smartphone----------------------------------------------------------------------------------------
+
+    private boolean matchSpecificationsSmartPhone(String jsonSpec, SearchFilterRequest request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
+
+            return matchesField(specs, Arrays.asList("RAM", "Bộ nhớ RAM", "Dung lượng RAM"),
+                    request.getMemory(), FieldType.MEMORY) &&
+
+                    matchesField(specs, Arrays.asList("Ổ cứng", "Dung lượng ổ cứng", "Bộ nhớ trong", "Lưu trữ", "Dung lượng lưu trữ"),
+                            request.getStorage(), FieldType.STORAGE) &&
+
+                    matchesField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate"),
+                            request.getRefreshRate(), FieldType.REFRESH_RATE);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean matchesFieldSmartphone(List<Map<String, String>> specs, List<String> titleList,
+                                 String expectedValue, FieldType fieldType) {
+        if (expectedValue == null || expectedValue.trim().isEmpty()) {
+            return true;
+        }
+
+        String lowerExpected = expectedValue.toLowerCase();
+
+        for (Map<String, String> spec : specs) {
+            String specTitle = spec.get("title");
+            String specContent = spec.get("content");
+
+            if (specTitle != null && specContent != null) {
+                for (String title : titleList) {
+                    if (specTitle.toLowerCase().contains(title.toLowerCase()) ||
+                            title.toLowerCase().contains(specTitle.toLowerCase())) {
+
+                        String lowerContent = specContent.toLowerCase();
+
+                        switch (fieldType) {
+                            case MEMORY:
+                                return matchMemory(lowerContent, lowerExpected);
+                            case STORAGE:
+                                return matchStorage(lowerContent, lowerExpected);
+                            case REFRESH_RATE:
+                                return matchRefreshRate(lowerContent, lowerExpected);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
 
 }
