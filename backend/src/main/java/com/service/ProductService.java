@@ -452,9 +452,9 @@ public class ProductService {
 //                                    "Màn hình", "Kích thước màn hình", "Display", "Screen Size", "Màn hình rộng"),
 //                            request.getDisplaySize(), FieldType.DISPLAY_SIZE) &&
 //
-                    matchesField(specs, Arrays.asList(
-                                    "Độ phân giải", "Resolution", "Screen Resolution"),
-                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION) &&
+//                    matchesField(specs, Arrays.asList(
+//                                    "Độ phân giải", "Resolution", "Screen Resolution", "Độ phân giải màn hình"),
+//                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION) &&
 //
 //                    matchesField(specs, Arrays.asList(
 //                                    "Card màn hình", "GPU", "VGA", "Đồ họa", "Graphics", "Graphics Card", "Card đồ họa"),
@@ -485,7 +485,7 @@ public class ProductService {
         MEMORY,
         STORAGE,
         REFRESH_RATE,
-        DISPLAY_RESOLUTION,
+//        DISPLAY_RESOLUTION,
 //        DISPLAY_SIZE,
 //        GRAPHICS,
 //        OS,
@@ -502,15 +502,15 @@ public class ProductService {
         String normalizedExpected = normalize(expectedValue);
 
         for (Map<String, String> spec : specs) {
-            System.out.println(spec.toString());
+//            System.out.println(spec.toString());
             String specTitle = spec.get("title");
             String specContent = spec.get("content");
             if (specTitle != null && specContent != null) {
                 for (String title : titleList) {
                     if (similarTo(title, specTitle)) {
-                        System.out.println(spec  + specTitle);
+//                        System.out.println(spec  + specTitle);
                         String normalizedContent = normalize(specContent);
-                        System.out.println(normalizedContent + " " + normalizedExpected + spec);
+//                        System.out.println(normalizedContent + " " + normalizedExpected + spec);
                         switch (fieldType) {
                             case CPU:
                                 return matchCpu(normalizedContent, normalizedExpected);
@@ -520,8 +520,8 @@ public class ProductService {
                                 return matchStorage(normalizedContent, normalizedExpected);
 //                            case DISPLAY_SIZE:
 //                                return matchDisplaySize(normalizedContent, normalizedExpected);
-                            case DISPLAY_RESOLUTION:
-                                return matchDisplayResolution(normalizedContent, normalizedExpected);
+//                            case DISPLAY_RESOLUTION:
+//                                return matchDisplayResolution(normalizedContent, normalizedExpected);
 //                            case GRAPHICS:
 //                                return matchGraphics(normalizedContent, normalizedExpected);
 //                            case OS:
@@ -582,20 +582,20 @@ public class ProductService {
 //        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
 //    }
 //
-    private boolean matchDisplayResolution(String content, String expected) {
-        // Chuẩn hóa bằng cách xóa các ký tự đặc biệt chỉ giữ lại số và 'x' (cho độ phân giải dạng 1080x1920)
-        String normalizedContent = content.toLowerCase().replaceAll("[^0-9x]", "");
-        String normalizedExpected = expected.toLowerCase().replaceAll("[^0-9x]", "");
-
-        // Nếu có chứa 'x' (dạng 1080x1920) thì so sánh chính xác
-        if (normalizedContent.contains("x") && normalizedExpected.contains("x")) {
-            return normalizedContent.equals(normalizedExpected);
-        }
-
-        // Ngược lại so sánh linh hoạt bằng contains
-        return content.toLowerCase().contains(expected.toLowerCase()) ||
-                expected.toLowerCase().contains(content.toLowerCase());
-    }
+//    private boolean matchDisplayResolution(String content, String expected) {
+//        // Chuẩn hóa bằng cách xóa các ký tự đặc biệt chỉ giữ lại số và 'x' (cho độ phân giải dạng 1080x1920)
+//        String normalizedContent = content.toLowerCase().replaceAll("[^0-9x]", "");
+//        String normalizedExpected = expected.toLowerCase().replaceAll("[^0-9x]", "");
+//
+//        // Nếu có chứa 'x' (dạng 1080x1920) thì so sánh chính xác
+//        if (normalizedContent.contains("x") && normalizedExpected.contains("x")) {
+//            return normalizedContent.equals(normalizedExpected);
+//        }
+//
+//        // Ngược lại so sánh linh hoạt bằng contains
+//        return content.toLowerCase().contains(expected.toLowerCase()) ||
+//                expected.toLowerCase().contains(content.toLowerCase());
+//    }
 //
 //    private boolean matchGraphics(String content, String expected) {
 //        String lowerContent = content.toLowerCase();
@@ -650,9 +650,9 @@ public class ProductService {
                             request.getStorage(), FieldType.STORAGE) &&
 
                     matchesField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate"),
-                            request.getRefreshRate(), FieldType.REFRESH_RATE) &&
-                    matchesField(specs, Arrays.asList("Độ phân giải", "Resolution", "Màn hình cảm ứng"),
-                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION);
+                            request.getRefreshRate(), FieldType.REFRESH_RATE);
+//                    matchesField(specs, Arrays.asList("Độ phân giải", "Resolution", "Màn hình cảm ứng", "Độ phân giải màn hình"),
+//                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION);
         } catch (Exception e) {
             return false;
         }
