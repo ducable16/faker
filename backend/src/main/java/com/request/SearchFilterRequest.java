@@ -22,7 +22,7 @@ public class SearchFilterRequest {
 
 //    private String displaySize;
 
-//    private String displayResolution;
+    private String displayResolution;
 
 //    private String battery;
 
