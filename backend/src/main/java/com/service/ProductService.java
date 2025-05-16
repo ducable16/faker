@@ -390,10 +390,10 @@ public class ProductService {
 
     public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request) {
         List<Product> products = new ArrayList<>();
-        if(request.getType().equalsIgnoreCase("smartphone")) products = getProductsWithFilterSmartPhone(request);
-        if(request.getType().equalsIgnoreCase("laptop")) products = getProductsWithFilterLaptop(request);
         if(request.getLowerBound() == null) request.setLowerBound(0L);
         if(request.getUpperBound() == null) request.setUpperBound((long) 1e15);
+        if(request.getType().equalsIgnoreCase("smartphone")) products = getProductsWithFilterSmartPhone(request);
+        if(request.getType().equalsIgnoreCase("laptop")) products = getProductsWithFilterLaptop(request);
         List<ProductDTO> productDTOs = new ArrayList<>();
         for (Product product : products) {
             productDTOs.add(toDTO(product));

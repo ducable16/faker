@@ -3,7 +3,9 @@ package com.controller;
 import com.request.LoginRequest;
 import com.request.SignUpOTPRequest;
 import com.request.SignUpRequest;
+import com.request.TokenRefreshRequest;
 import com.response.StatusResponse;
+import com.response.TokenResponse;
 import com.service.*;
 import com.entity.User;
 import org.hibernate.Version;
@@ -66,5 +68,13 @@ public class AuthController {
             return ResponseEntity.status(401).body(new StatusResponse("Wrong password"));
         }
         return ResponseEntity.status(200).body(jwtService.generateTokenWithUserDetails(user.get()));
+    }
+    @PostMapping("refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
+        try {
+            return ResponseEntity.status(200).body(jwtService.refreshToken(request.getRefreshToken()));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new StatusResponse("Refresh token fail"));
+        }
     }
 }
