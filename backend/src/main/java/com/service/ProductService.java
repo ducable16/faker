@@ -369,6 +369,7 @@ public class ProductService {
 
         // Duyệt qua từng sản phẩm trong danh sách
         for (Product product : allProducts) {
+            if(!Objects.equals(product.getBrandId(), request.getBrandId())) continue;
             if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
             // Lấy thông số kỹ thuật của sản phẩm
             String specifications = product.getSpecifications();
@@ -392,6 +393,7 @@ public class ProductService {
         List<Product> products = new ArrayList<>();
         if(request.getLowerBound() == null) request.setLowerBound(0L);
         if(request.getUpperBound() == null) request.setUpperBound((long) 1e15);
+        if(request.getBrandName() != null) request.setBrandId(brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId());
         if(request.getType().equalsIgnoreCase("smartphone")) products = getProductsWithFilterSmartPhone(request);
         if(request.getType().equalsIgnoreCase("laptop")) products = getProductsWithFilterLaptop(request);
         List<ProductDTO> productDTOs = new ArrayList<>();
@@ -408,9 +410,9 @@ public class ProductService {
         // Lấy tất cả sản phẩm thuộc danh mục Laptop (categoryId = 1)
         List<Product> allProducts = productRepository.findByCategoryId(1);
         List<Product> filteredProducts = new ArrayList<>();
-
         // Duyệt qua từng sản phẩm trong danh sách
         for (Product product : allProducts) {
+            if(!Objects.equals(product.getBrandId(), request.getBrandId())) continue;
             if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
             // Lấy thông số kỹ thuật của sản phẩm
             String specifications = product.getSpecifications();

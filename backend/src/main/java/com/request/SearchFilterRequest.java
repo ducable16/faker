@@ -6,6 +6,10 @@ import lombok.Data;
 public class SearchFilterRequest {
     private String type;
 
+    private String brandName;
+
+    private Integer brandId;
+
     private Long lowerBound;
 
     private Long upperBound;
