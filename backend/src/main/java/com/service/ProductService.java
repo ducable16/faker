@@ -369,7 +369,7 @@ public class ProductService {
 
         // Duyệt qua từng sản phẩm trong danh sách
         for (Product product : allProducts) {
-            if(!Objects.equals(product.getBrandId(), request.getBrandId())) continue;
+            if(request.getBrandId() != null && !Objects.equals(product.getBrandId(), request.getBrandId())) continue;
             if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
             // Lấy thông số kỹ thuật của sản phẩm
             String specifications = product.getSpecifications();
@@ -412,7 +412,7 @@ public class ProductService {
         List<Product> filteredProducts = new ArrayList<>();
         // Duyệt qua từng sản phẩm trong danh sách
         for (Product product : allProducts) {
-            if(!Objects.equals(product.getBrandId(), request.getBrandId())) continue;
+            if(request.getBrandId() != null && !Objects.equals(product.getBrandId(), request.getBrandId())) continue;
             if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
             // Lấy thông số kỹ thuật của sản phẩm
             String specifications = product.getSpecifications();

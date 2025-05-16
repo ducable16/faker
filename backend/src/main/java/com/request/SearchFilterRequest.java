@@ -8,7 +8,7 @@ public class SearchFilterRequest {
 
     private String brandName;
 
-    private Integer brandId;
+    private Integer brandId = null;
 
     private Long lowerBound;
 
