@@ -413,6 +413,8 @@ public class ProductService {
         // Chỉ cần khớp với 1 trong các giá trị expected là đủ
         for (String expectedValue : expectedValues) {
             if (matchesField(specs, titleList, expectedValue, fieldType)) {
+                System.out.print(expectedValue + " " + fieldType + specs);
+                System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                 return true;
             }
         }

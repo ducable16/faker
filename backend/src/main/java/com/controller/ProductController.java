@@ -100,6 +100,7 @@ public class ProductController {
 //    }
     @PostMapping("/filter")
     public ResponseEntity<?> searchProductsInFilter(@RequestBody SearchFilterRequest request) {
+        if(request.getType() == null) return ResponseEntity.status(400).body(new StatusResponse("Type is null"));
         request.setType(request.getType().toLowerCase());
         if(!request.getType().equalsIgnoreCase("smartphone") && !request.getType().equalsIgnoreCase("laptop"))
             return ResponseEntity.status(404).body(new StatusResponse("Type not supported"));
