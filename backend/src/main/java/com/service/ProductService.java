@@ -274,17 +274,6 @@ public class ProductService {
     // Cache để tăng hiệu suất
     private final Map<String, List<Map<String, String>>> specCache = new ConcurrentHashMap<>();
 
-    private List<Map<String, String>> parseSpecifications(String jsonSpec) {
-        return specCache.computeIfAbsent(jsonSpec, k -> {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
-            } catch (Exception e) {
-                return Collections.emptyList();
-            }
-        });
-    }
-
 
     public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request) {
         List<Product> products = new ArrayList<>();
@@ -448,6 +437,7 @@ public class ProductService {
                 for (String title : titleList) {
                     if (similarTo(title, specTitle)) {
                         String normalizedContent = normalize(specContent);
+                        System.out.println(normalizedContent + " xxx " + normalizedExpected);
                         switch (fieldType) {
                             case CPU:
                                 return matchCpu(normalizedContent, normalizedExpected);
