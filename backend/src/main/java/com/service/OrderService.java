@@ -38,8 +38,10 @@ public class OrderService {
     private ProductVariantRepository productVariantRepository;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private EmailService emailService;
 
-    public Integer createOrder(OrderRequest orderRequest, String token) {
+   public Integer createOrder(OrderRequest orderRequest, String token) {
         if(orderRequest.getItems().length == 0) return -1;
         User user = userService.getInfo(token).get();
         Order order = new Order(orderRequest, user.getUserId());
@@ -62,47 +64,34 @@ public class OrderService {
             orderItemRepository.save(orderItem);
             cartService.removeCartItemWhenCreateOrder(user.getUserId(), item.getProductId(), item.getVariantId());
         }
+
+        // --- Gửi email xác nhận đơn hàng ---
+        try {
+            String to = user.getEmail();
+            String subject = "Xác nhận đơn hàng #" + order.getOrderId();
+            StringBuilder content = new StringBuilder();
+            content.append("Chào ").append(user.getFullName()).append(",\n\n");
+            content.append("Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.\n");
+            content.append("Thông tin đơn hàng:\n");
+            content.append("Mã đơn hàng: ").append(order.getOrderId()).append("\n");
+            content.append("Tổng tiền: ").append(totalAmount).append(" VND\n");
+            content.append("Phí vận chuyển: ").append(order.getShippingFee()).append(" VND\n");
+            content.append("Ghi chú: ").append(order.getNote() != null ? order.getNote() : "Không có").append("\n\n");
+            content.append("Chúng tôi sẽ sớm xử lý đơn hàng của bạn.\n");
+            content.append("Trân trọng,\nĐội ngũ cửa hàng");
+
+            emailService.sendEmail(to, subject, content.toString());
+        } catch (Exception e) {
+            System.out.println("Gửi email thất bại: " + e.getMessage());
+        }
+
+
         return order.getOrderId();
     }
     public Long priceCalculate(Long originalPrice, Integer discountPercentage) {
         return originalPrice * (100 - discountPercentage) / 100;
     }
 
-//    public Integer shippingFeeCalculate(String address, Double weight, DeliveryMethod deliveryMethod) {
-//        String[] shippingAddress = address.split(", ");
-//        String wardAddress = shippingAddress[0];
-//        String districtAddress = shippingAddress[1];
-//        String provinceAddress = shippingAddress[2];
-//        Province province = provinceRepository.findByName(provinceAddress);
-//        District district = districtRepository.findByFullName(districtAddress);
-//        Integer roundWeight = (int) Math.round(weight);
-//        Integer totalAmount = 0;
-//        if(province.getName().equals("Hà Nội") || province.getName().equals("Hồ Chí Minh")) {
-//            if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 15 * 1000;
-//            else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 30 * 1000;
-//        }
-//        else {
-//            if(district.getAdministrativeUnitId() == 4) {
-//                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 20 * 1000;
-//                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 35 * 1000;
-//            }
-//            if(district.getAdministrativeUnitId() == 5) {
-//                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 25 * 1000;
-//                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 40 * 1000;
-//            }
-//            if(district.getAdministrativeUnitId() == 6) {
-//                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 30 * 1000;
-//                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 45 * 1000;
-//            }
-//            if(district.getAdministrativeUnitId() == 7) {
-//                if(deliveryMethod.equals(DeliveryMethod.STANDARD)) totalAmount = 40 * 1000;
-//                else if(deliveryMethod.equals(DeliveryMethod.EXPRESS)) totalAmount = 55 * 1000;
-//            }
-//        }
-//        totalAmount = 60 * 1000;
-//        totalAmount = totalAmount + (roundWeight/4 * 10 * 1000);
-//        return totalAmount;
-//    }
     public Optional<Order> getOrderById(Integer orderId) {
         return orderRepository.findOrderByOrderId(orderId);
     }

@@ -132,7 +132,7 @@ public class JwtService {
 //                .signWith(getSignKey(), SignatureAlgorithm.HS256)
 //                .compact();
 
-        return new TokenResponse(newAccessToken);
+        return new TokenResponse(newAccessToken, refreshToken);
     }
 }
 

@@ -123,50 +123,6 @@ public class ProductService {
         }
         return false;
     }
-
-//    public void updateProduct(ProductRequest request) {
-//        Product product = productRepository.findByProductId(request.getProductId()).get();
-//        product.setProductName(request.getProductName());
-//        product.setDescription(request.getDescription());
-//        product.setSpecifications(request.getSpecifications());
-//        product.setWeight(request.getWeight());
-//        product.setPrice(request.getPrice());
-//        product.setSupportRushOrder(request.getSupportRushOrder());
-//        if (request.getIsActive() != null) {
-//            product.setIsActive(request.getIsActive());
-//        }
-//
-//        Integer categoryId = categoryRepository.findByCategoryNameIgnoreCase(request.getCategoryName()).get().getCategoryId();
-//        Integer brandId = brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId();
-//        product.setCategoryId(categoryId);
-//        product.setBrandId(brandId);
-//        product.setUpdatedAt(LocalDateTime.now());
-//
-//        Set<Integer> updatedVariantIds = request.getVariants().stream().filter(v -> v.getVariantId() != null).map(ProductVariantRequest::getVariantId).collect(Collectors.toSet());
-//
-//
-//        Iterator<ProductVariant> iterator = product.getVariants().iterator();
-//        while (iterator.hasNext()) {
-//            ProductVariant variant = iterator.next();
-//            if (!updatedVariantIds.contains(variant.getVariantId())) {
-//                iterator.remove();
-//            }
-//        }
-//
-//        for (ProductVariantRequest variantReq : request.getVariants()) {
-//            ProductVariant variant = product.getVariants().stream().filter(v -> v.getVariantId() != null && v.getVariantId().equals(variantReq.getVariantId())).findFirst().orElseGet(() -> {
-//                ProductVariant newVariant = new ProductVariant();
-//                newVariant.setProduct(product);
-//                product.getVariants().add(newVariant);
-//                return newVariant;
-//            });
-//            variant.setColor(variantReq.getColor());
-//            variant.setImageUrl(variantReq.getImageUrl());
-//            variant.setStockQuantity(variantReq.getStockQuantity());
-//            variant.setDiscountPercentage(variantReq.getDiscountPercentage());
-//        }
-//        productRepository.save(product);
-//    }
     public void updateProduct(ProductRequest request) {
         // Load product
         Product product = productRepository.findByProductId(request.getProductId())
@@ -305,49 +261,6 @@ public class ProductService {
                 .replaceAll("([0-9]+)\\s*([a-zà-ỹ]+)", "$1$2"); // Xóa khoảng trắng giữa số và đơn vị
     }
 
-    private boolean matchesField(List<Map<String, String>> specs, List<String> titleList, String expectedValue) {
-        if (expectedValue == null || expectedValue.trim().isEmpty()) {
-            return true;
-        }
-
-        String normalizedExpected = normalize(expectedValue);
-
-        for (Map<String, String> spec : specs) {
-            String specTitle = spec.get("title");
-            String specContent = spec.get("content");
-
-            if (specTitle != null && specContent != null) {
-                for (String title : titleList) {
-                    if (title.equalsIgnoreCase(specTitle)) {
-                        String normalizedContent = normalize(specContent);
-                        // Xử lý chung
-                        if (normalizedContent.equals(normalizedExpected) ||
-                                normalizedContent.contains(normalizedExpected) ||
-                                normalizedExpected.contains(normalizedContent)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean isBatteryField(List<String> titleList) {
-        List<String> batteryTitles = Arrays.asList("Thông tin Pin", "Pin", "Dung lượng pin", "Thời lượng pin", "Dung lượng");
-        return titleList.stream().anyMatch(batteryTitles::contains);
-    }
-
-    private boolean isBatteryMatch(String content, String expected) {
-        try {
-            // Xử lý trường hợp dung lượng pin (vd: "4422 mah" vs "4.422 mah")
-            String numContent = content.replaceAll("[^0-9]", "");
-            String numExpected = expected.replaceAll("[^0-9]", "");
-            return numContent.equals(numExpected);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     // Cache để tăng hiệu suất
     private final Map<String, List<Map<String, String>>> specCache = new ConcurrentHashMap<>();
@@ -361,6 +274,49 @@ public class ProductService {
                 return Collections.emptyList();
             }
         });
+    }
+
+
+    public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request) {
+        List<Product> products = new ArrayList<>();
+        if(request.getLowerBound() == null) request.setLowerBound(0L);
+        if(request.getUpperBound() == null) request.setUpperBound((long) 1e15);
+        if(request.getBrandName() != null) request.setBrandId(brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId());
+        if(request.getType().equalsIgnoreCase("smartphone")) products = getProductsWithFilterSmartPhone(request);
+        if(request.getType().equalsIgnoreCase("laptop")) products = getProductsWithFilterLaptop(request);
+        List<ProductDTO> productDTOs = new ArrayList<>();
+        for (Product product : products) {
+            productDTOs.add(toDTO(product));
+        }
+        return productDTOs;
+
+    }
+
+    // deepseek laptop & smartphone----------------------------------------------------------------------------------------
+
+    public List<Product> getProductsWithFilterLaptop(SearchFilterRequest request) {
+        // Lấy tất cả sản phẩm thuộc danh mục Laptop (categoryId = 1)
+        List<Product> allProducts = productRepository.findByCategoryId(1);
+        List<Product> filteredProducts = new ArrayList<>();
+        // Duyệt qua từng sản phẩm trong danh sách
+        for (Product product : allProducts) {
+            if(request.getBrandId() != null && !Objects.equals(product.getBrandId(), request.getBrandId())) continue;
+            if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
+            // Lấy thông số kỹ thuật của sản phẩm
+            String specifications = product.getSpecifications();
+
+            // Kiểm tra xem sản phẩm có khớp với các tiêu chí filter không
+            boolean isMatch = matchSpecificationsLaptop(specifications, request);
+
+            // Nếu khớp thì thêm vào danh sách kết quả
+            if (isMatch) {
+                System.out.println("hehehe");
+                filteredProducts.add(product);
+            }
+        }
+
+        // Trả về danh sách sản phẩm đã lọc
+        return filteredProducts;
     }
 
     public List<Product> getProductsWithFilterSmartPhone(SearchFilterRequest request) {
@@ -388,96 +344,79 @@ public class ProductService {
         return filteredProducts;
     }
 
-
-    public List<ProductDTO> searchProductsWithFilter(SearchFilterRequest request) {
-        List<Product> products = new ArrayList<>();
-        if(request.getLowerBound() == null) request.setLowerBound(0L);
-        if(request.getUpperBound() == null) request.setUpperBound((long) 1e15);
-        if(request.getBrandName() != null) request.setBrandId(brandRepository.findByBrandNameIgnoreCase(request.getBrandName()).get().getBrandId());
-        if(request.getType().equalsIgnoreCase("smartphone")) products = getProductsWithFilterSmartPhone(request);
-        if(request.getType().equalsIgnoreCase("laptop")) products = getProductsWithFilterLaptop(request);
-        List<ProductDTO> productDTOs = new ArrayList<>();
-        for (Product product : products) {
-            productDTOs.add(toDTO(product));
-        }
-        return productDTOs;
-
-    }
-
-    // deepseek laptop----------------------------------------------------------------------------------------
-
-    public List<Product> getProductsWithFilterLaptop(SearchFilterRequest request) {
-        // Lấy tất cả sản phẩm thuộc danh mục Laptop (categoryId = 1)
-        List<Product> allProducts = productRepository.findByCategoryId(1);
-        List<Product> filteredProducts = new ArrayList<>();
-        // Duyệt qua từng sản phẩm trong danh sách
-        for (Product product : allProducts) {
-            if(request.getBrandId() != null && !Objects.equals(product.getBrandId(), request.getBrandId())) continue;
-            if(product.getPrice() > request.getUpperBound() || product.getPrice() < request.getLowerBound()) continue;
-            // Lấy thông số kỹ thuật của sản phẩm
-            String specifications = product.getSpecifications();
-
-            // Kiểm tra xem sản phẩm có khớp với các tiêu chí filter không
-            boolean isMatch = matchSpecificationsLaptop(specifications, request);
-
-            // Nếu khớp thì thêm vào danh sách kết quả
-            if (isMatch) {
-                System.out.println("hehehe");
-                filteredProducts.add(product);
-            }
-        }
-
-        // Trả về danh sách sản phẩm đã lọc
-        return filteredProducts;
-    }
-
     private boolean matchSpecificationsLaptop(String jsonSpec, SearchFilterRequest request) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
 
-            return matchesField(specs, Arrays.asList(
-                            "Công nghệ CPU", "CPU", "Processor", "Bộ vi xử lý", "Chip", "Chip xử lý", "Vi xử lý"),
-                    request.getCpu(), FieldType.CPU) &&
+            // Kiểm tra CPU (nếu request có danh sách CPU)
+            boolean cpuMatch = request.getCpus() == null || request.getCpus().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList(
+                                    "Công nghệ CPU", "CPU", "Processor", "Bộ vi xử lý", "Chip", "Chip xử lý", "Vi xử lý"),
+                            request.getCpus(), FieldType.CPU);
 
-                    matchesField(specs, Arrays.asList(
+            // Kiểm tra RAM (nếu request có danh sách RAM)
+            boolean memoryMatch = request.getMemories() == null || request.getMemories().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList(
                                     "RAM", "Bộ nhớ RAM", "Dung lượng RAM", "Memory", "System Memory"),
-                            request.getMemory(), FieldType.MEMORY) &&
+                            request.getMemories(), FieldType.MEMORY);
 
-                    matchesField(specs, Arrays.asList(
+            // Kiểm tra Storage (nếu request có danh sách Storage)
+            boolean storageMatch = request.getStorages() == null || request.getStorages().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList(
                                     "Ổ cứng", "Storage", "Bộ nhớ trong", "SSD", "HDD", "Dung lượng lưu trữ", "Hard Drive", "Loại ổ cứng"),
-                            request.getStorage(), FieldType.STORAGE) &&
+                            request.getStorages(), FieldType.STORAGE);
 
-//                    matchesField(specs, Arrays.asList(
-//                                    "Màn hình", "Kích thước màn hình", "Display", "Screen Size", "Màn hình rộng"),
-//                            request.getDisplaySize(), FieldType.DISPLAY_SIZE) &&
-//
-//                    matchesField(specs, Arrays.asList(
-//                                    "Độ phân giải", "Resolution", "Screen Resolution", "Độ phân giải màn hình"),
-//                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION) &&
-//
-//                    matchesField(specs, Arrays.asList(
-//                                    "Card màn hình", "GPU", "VGA", "Đồ họa", "Graphics", "Graphics Card", "Card đồ họa"),
-//                            request.getGraphicsCard(), FieldType.GRAPHICS) &&
-//
-//                    matchesField(specs, Arrays.asList(
-//                                    "Hệ điều hành", "OS", "Operating System"),
-//                            request.getOperatingSystem(), FieldType.OS) &&
-//
-//                    matchesField(specs, Arrays.asList(
-//                                    "Pin", "Battery", "Thời lượng pin", "Dung lượng pin", "Battery Life", "Thông tin Pin"),
-//                            request.getBattery(), FieldType.BATTERY) &&
-//
-//                    matchesField(specs, Arrays.asList(
-//                                    "Khối lượng", "Trọng lượng", "Weight"),
-//                            request.getWeight(), FieldType.WEIGHT) &&
+            // Kiểm tra Refresh Rate (giữ nguyên dạng String)
+            boolean refreshRateMatch = request.getRefreshRates() == null || request.getRefreshRates().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate", "Tốc độ làm mới"),
+                            request.getRefreshRates(), FieldType.REFRESH_RATE);
 
-                    matchesField(specs, Arrays.asList(
-                                    "Tần số quét", "Refresh rate"),
-                            request.getRefreshRate(), FieldType.REFRESH_RATE);
+            return cpuMatch && memoryMatch && storageMatch && refreshRateMatch;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private boolean matchSpecificationsSmartPhone(String jsonSpec, SearchFilterRequest request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
+
+            // Kiểm tra RAM (nếu request có danh sách RAM)
+            boolean memoryMatch = request.getMemories() == null || request.getMemories().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList("RAM", "Bộ nhớ RAM", "Dung lượng RAM"),
+                            request.getMemories(), FieldType.MEMORY);
+
+            // Kiểm tra Storage (nếu request có danh sách Storage)
+            boolean storageMatch = request.getStorages() == null || request.getStorages().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList("Ổ cứng", "Dung lượng ổ cứng", "Bộ nhớ trong", "Lưu trữ", "Dung lượng lưu trữ"),
+                            request.getStorages(), FieldType.STORAGE);
+
+            // Kiểm tra Refresh Rate (nếu request có danh sách Refresh Rate)
+            boolean refreshRateMatch = request.getRefreshRates() == null || request.getRefreshRates().isEmpty() ||
+                    matchesAnyField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate"),
+                            request.getRefreshRates(), FieldType.REFRESH_RATE);
+
+            return memoryMatch && storageMatch && refreshRateMatch;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean matchesAnyField(List<Map<String, String>> specs, List<String> titleList,
+                                    List<String> expectedValues, FieldType fieldType) {
+        if (expectedValues == null || expectedValues.isEmpty()) {
+            return true;
+        }
+
+        // Chỉ cần khớp với 1 trong các giá trị expected là đủ
+        for (String expectedValue : expectedValues) {
+            if (matchesField(specs, titleList, expectedValue, fieldType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     enum FieldType {
@@ -485,12 +424,6 @@ public class ProductService {
         MEMORY,
         STORAGE,
         REFRESH_RATE,
-//        DISPLAY_RESOLUTION,
-//        DISPLAY_SIZE,
-//        GRAPHICS,
-//        OS,
-//        BATTERY,
-//        WEIGHT
     }
 
     private boolean matchesField(List<Map<String, String>> specs, List<String> titleList,
@@ -518,18 +451,6 @@ public class ProductService {
                                 return matchMemory(normalizedContent, normalizedExpected);
                             case STORAGE:
                                 return matchStorage(normalizedContent, normalizedExpected);
-//                            case DISPLAY_SIZE:
-//                                return matchDisplaySize(normalizedContent, normalizedExpected);
-//                            case DISPLAY_RESOLUTION:
-//                                return matchDisplayResolution(normalizedContent, normalizedExpected);
-//                            case GRAPHICS:
-//                                return matchGraphics(normalizedContent, normalizedExpected);
-//                            case OS:
-//                                return matchOs(normalizedContent, normalizedExpected);
-//                            case BATTERY:
-//                                return matchBattery(normalizedContent, normalizedExpected);
-//                            case WEIGHT:
-//                                return matchWeight(normalizedContent, normalizedExpected);
                             case REFRESH_RATE:
                                 return matchRefreshRate(normalizedContent, normalizedExpected);
                             default:
@@ -576,51 +497,6 @@ public class ProductService {
         return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
     }
 
-//    private boolean matchDisplaySize(String content, String expected) {
-//        String lowerContent = content.toLowerCase();
-//        String lowerExpected = expected.toLowerCase();
-//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-//    }
-//
-//    private boolean matchDisplayResolution(String content, String expected) {
-//        // Chuẩn hóa bằng cách xóa các ký tự đặc biệt chỉ giữ lại số và 'x' (cho độ phân giải dạng 1080x1920)
-//        String normalizedContent = content.toLowerCase().replaceAll("[^0-9x]", "");
-//        String normalizedExpected = expected.toLowerCase().replaceAll("[^0-9x]", "");
-//
-//        // Nếu có chứa 'x' (dạng 1080x1920) thì so sánh chính xác
-//        if (normalizedContent.contains("x") && normalizedExpected.contains("x")) {
-//            return normalizedContent.equals(normalizedExpected);
-//        }
-//
-//        // Ngược lại so sánh linh hoạt bằng contains
-//        return content.toLowerCase().contains(expected.toLowerCase()) ||
-//                expected.toLowerCase().contains(content.toLowerCase());
-//    }
-//
-//    private boolean matchGraphics(String content, String expected) {
-//        String lowerContent = content.toLowerCase();
-//        String lowerExpected = expected.toLowerCase();
-//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-//    }
-//
-//    private boolean matchOs(String content, String expected) {
-//        String lowerContent = content.toLowerCase();
-//        String lowerExpected = expected.toLowerCase();
-//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-//    }
-//
-//    private boolean matchBattery(String content, String expected) {
-//        String lowerContent = content.toLowerCase();
-//        String lowerExpected = expected.toLowerCase();
-//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-//    }
-//
-//    private boolean matchWeight(String content, String expected) {
-//        String lowerContent = content.toLowerCase();
-//        String lowerExpected = expected.toLowerCase();
-//        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
-//    }
-
     private boolean matchRefreshRate(String content, String expected) {
         String lowerContent = content.toLowerCase();
         String lowerExpected = expected.toLowerCase();
@@ -635,63 +511,4 @@ public class ProductService {
                 norm2.contains(norm1) ||
                 norm1.replaceAll("[^a-z0-9]", "").equals(norm2.replaceAll("[^a-z0-9]", ""));
     }
-
-    // deepseek smartphone----------------------------------------------------------------------------------------
-
-    private boolean matchSpecificationsSmartPhone(String jsonSpec, SearchFilterRequest request) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
-
-            return matchesField(specs, Arrays.asList("RAM", "Bộ nhớ RAM", "Dung lượng RAM"),
-                    request.getMemory(), FieldType.MEMORY) &&
-
-                    matchesField(specs, Arrays.asList("Ổ cứng", "Dung lượng ổ cứng", "Bộ nhớ trong", "Lưu trữ", "Dung lượng lưu trữ"),
-                            request.getStorage(), FieldType.STORAGE) &&
-
-                    matchesField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate"),
-                            request.getRefreshRate(), FieldType.REFRESH_RATE);
-//                    matchesField(specs, Arrays.asList("Độ phân giải", "Resolution", "Màn hình cảm ứng", "Độ phân giải màn hình"),
-//                            request.getDisplayResolution(), FieldType.DISPLAY_RESOLUTION);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean matchesFieldSmartphone(List<Map<String, String>> specs, List<String> titleList,
-                                 String expectedValue, FieldType fieldType) {
-        if (expectedValue == null || expectedValue.trim().isEmpty()) {
-            return true;
-        }
-
-        String lowerExpected = expectedValue.toLowerCase();
-
-        for (Map<String, String> spec : specs) {
-            String specTitle = spec.get("title");
-            String specContent = spec.get("content");
-
-            if (specTitle != null && specContent != null) {
-                for (String title : titleList) {
-                    if (specTitle.toLowerCase().contains(title.toLowerCase()) ||
-                            title.toLowerCase().contains(specTitle.toLowerCase())) {
-
-                        String lowerContent = specContent.toLowerCase();
-
-                        switch (fieldType) {
-                            case MEMORY:
-                                return matchMemory(lowerContent, lowerExpected);
-                            case STORAGE:
-                                return matchStorage(lowerContent, lowerExpected);
-                            case REFRESH_RATE:
-                                return matchRefreshRate(lowerContent, lowerExpected);
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
-
 }

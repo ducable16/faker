@@ -2,6 +2,8 @@ package com.request;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class SearchFilterRequest {
     private String type;
@@ -14,11 +16,11 @@ public class SearchFilterRequest {
 
     private Long upperBound;
 
-    private String storage;
+    private List<String> storages;
 
-    private String cpu;
+    private List<String> cpus;
 
-    private String memory;
+    private List<String> memories;
 
 //    private String displaySize;
 
@@ -28,7 +30,7 @@ public class SearchFilterRequest {
 
 //    private String chargingCapacity;
 
-    private String refreshRate;
+    private List<String> refreshRates;
 
 //    private String graphicsCard;
 
