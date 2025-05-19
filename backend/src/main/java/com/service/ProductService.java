@@ -255,12 +255,12 @@ public class ProductService {
 
         // Chuẩn hóa cơ bản
         String normalized = input.trim().toLowerCase().replaceAll("\\s+", " ");
-        normalized = normalized.replaceAll("(?<=\\d)(gb|tb|mb)", " $1");
+        normalized = normalized.replaceAll("(?<=\\d)(gb|tb|mb|hz)", " $1");
 
         // Xử lý đặc biệt cho RAM và Storage
-        if (normalized.matches("^\\d+\\s+(gb|tb|mb)\\b.*")) {
+        if (normalized.matches("^\\d+\\s+(gb|tb|mb|hz)\\b.*")) {
             String[] parts = normalized.split("\\s+");
-            if (parts.length >= 2 && parts[1].matches("gb|tb")) {
+            if (parts.length >= 2 && parts[1].matches("gb|tb|hz")) {
                 // Lấy phần số và đơn vị đầu tiên (bỏ phần trong ngoặc)
                 normalized = parts[0] + " " + parts[1];
 
@@ -458,9 +458,7 @@ public class ProductService {
                             case REFRESH_RATE:
                                 return matchRefreshRate(normalizedContent, normalizedExpected);
                             default:
-                                return normalizedContent.equals(normalizedExpected) ||
-                                        normalizedContent.contains(normalizedExpected) ||
-                                        normalizedExpected.contains(normalizedContent);
+                                return normalizedContent.equals(normalizedExpected);
                         }
                     }
                 }
@@ -472,47 +470,31 @@ public class ProductService {
     private boolean matchCpu(String content, String expected) {
         String lowerContent = content.toLowerCase();
         String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+        return lowerContent.equals(lowerExpected);
     }
 
     private boolean matchMemory(String content, String expected) {
         String lowerContent = content.toLowerCase();
         String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+        return lowerContent.equals(lowerExpected);
     }
 
     private boolean matchStorage(String content, String expected) {
         String lowerContent = content.toLowerCase();
         String lowerExpected = expected.toLowerCase();
 
-        // Xử lý đặc biệt cho chuyển đổi TB sang GB
-        if (lowerContent.contains("tb") && !lowerExpected.contains("tb")) {
-            String tbValue = lowerContent.replaceAll("[^0-9.]", "");
-            String gbValue = lowerExpected.replaceAll("[^0-9.]", "");
-            try {
-                double tb = Double.parseDouble(tbValue);
-                double gb = Double.parseDouble(gbValue);
-                return Math.abs(tb * 1000 - gb) < 1; // Sai số nhỏ hơn 1GB
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+        return lowerContent.equals(lowerExpected);
     }
 
     private boolean matchRefreshRate(String content, String expected) {
         String lowerContent = content.toLowerCase();
         String lowerExpected = expected.toLowerCase();
-        return lowerContent.contains(lowerExpected) || lowerExpected.contains(lowerContent);
+        return lowerContent.equals(lowerExpected);
     }
 
     private boolean similarTo(String title1, String title2) {
-        String norm1 = normalize(title1);
-        String norm2 = normalize(title2);
-        return norm1.equals(norm2) ||
-                norm1.contains(norm2) ||
-                norm2.contains(norm1) ||
-                norm1.replaceAll("[^a-z0-9]", "").equals(norm2.replaceAll("[^a-z0-9]", ""));
+        String norm1 = title1.toLowerCase();
+        String norm2 = title2.toLowerCase();
+        return norm1.equals(norm2);
     }
 }
