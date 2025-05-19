@@ -437,7 +437,7 @@ public class ProductService {
                 for (String title : titleList) {
                     if (similarTo(title, specTitle)) {
                         String normalizedContent = normalize(specContent);
-                        System.out.println(normalizedContent + " xxx " + normalizedExpected);
+//                        System.out.println(normalizedContent + " xxx " + normalizedExpected);
                         switch (fieldType) {
                             case CPU:
                                 return matchCpu(normalizedContent, normalizedExpected);
