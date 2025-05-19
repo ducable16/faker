@@ -350,27 +350,27 @@ public class ProductService {
             List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
 
             // Kiểm tra CPU (nếu request có danh sách CPU)
-            boolean cpuMatch = request.getCpus() == null || request.getCpus().isEmpty() ||
+            boolean cpuMatch = request.getCpu() == null || request.getCpu().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList(
                                     "Công nghệ CPU", "CPU", "Processor", "Bộ vi xử lý", "Chip", "Chip xử lý", "Vi xử lý"),
-                            request.getCpus(), FieldType.CPU);
+                            request.getCpu(), FieldType.CPU);
 
             // Kiểm tra RAM (nếu request có danh sách RAM)
-            boolean memoryMatch = request.getMemories() == null || request.getMemories().isEmpty() ||
+            boolean memoryMatch = request.getMemory() == null || request.getMemory().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList(
                                     "RAM", "Bộ nhớ RAM", "Dung lượng RAM", "Memory", "System Memory"),
-                            request.getMemories(), FieldType.MEMORY);
+                            request.getMemory(), FieldType.MEMORY);
 
             // Kiểm tra Storage (nếu request có danh sách Storage)
-            boolean storageMatch = request.getStorages() == null || request.getStorages().isEmpty() ||
+            boolean storageMatch = request.getStorage() == null || request.getStorage().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList(
                                     "Ổ cứng", "Storage", "Bộ nhớ trong", "SSD", "HDD", "Dung lượng lưu trữ", "Hard Drive", "Loại ổ cứng"),
-                            request.getStorages(), FieldType.STORAGE);
+                            request.getStorage(), FieldType.STORAGE);
 
             // Kiểm tra Refresh Rate (giữ nguyên dạng String)
-            boolean refreshRateMatch = request.getRefreshRates() == null || request.getRefreshRates().isEmpty() ||
+            boolean refreshRateMatch = request.getRefreshRate() == null || request.getRefreshRate().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate", "Tốc độ làm mới"),
-                            request.getRefreshRates(), FieldType.REFRESH_RATE);
+                            request.getRefreshRate(), FieldType.REFRESH_RATE);
 
             return cpuMatch && memoryMatch && storageMatch && refreshRateMatch;
         } catch (Exception e) {
@@ -384,19 +384,19 @@ public class ProductService {
             List<Map<String, String>> specs = mapper.readValue(jsonSpec, new TypeReference<List<Map<String, String>>>() {});
 
             // Kiểm tra RAM (nếu request có danh sách RAM)
-            boolean memoryMatch = request.getMemories() == null || request.getMemories().isEmpty() ||
+            boolean memoryMatch = request.getMemory() == null || request.getMemory().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList("RAM", "Bộ nhớ RAM", "Dung lượng RAM"),
-                            request.getMemories(), FieldType.MEMORY);
+                            request.getMemory(), FieldType.MEMORY);
 
             // Kiểm tra Storage (nếu request có danh sách Storage)
-            boolean storageMatch = request.getStorages() == null || request.getStorages().isEmpty() ||
+            boolean storageMatch = request.getStorage() == null || request.getStorage().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList("Ổ cứng", "Dung lượng ổ cứng", "Bộ nhớ trong", "Lưu trữ", "Dung lượng lưu trữ"),
-                            request.getStorages(), FieldType.STORAGE);
+                            request.getStorage(), FieldType.STORAGE);
 
             // Kiểm tra Refresh Rate (nếu request có danh sách Refresh Rate)
-            boolean refreshRateMatch = request.getRefreshRates() == null || request.getRefreshRates().isEmpty() ||
+            boolean refreshRateMatch = request.getRefreshRate() == null || request.getRefreshRate().isEmpty() ||
                     matchesAnyField(specs, Arrays.asList("Tần số quét", "Tốc độ làm tươi", "Refresh rate"),
-                            request.getRefreshRates(), FieldType.REFRESH_RATE);
+                            request.getRefreshRate(), FieldType.REFRESH_RATE);
 
             return memoryMatch && storageMatch && refreshRateMatch;
         } catch (Exception e) {

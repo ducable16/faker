@@ -16,11 +16,11 @@ public class SearchFilterRequest {
 
     private Long upperBound;
 
-    private List<String> storages;
+    private List<String> storage;
 
-    private List<String> cpus;
+    private List<String> cpu;
 
-    private List<String> memories;
+    private List<String> memory;
 
 //    private String displaySize;
 
@@ -30,7 +30,7 @@ public class SearchFilterRequest {
 
 //    private String chargingCapacity;
 
-    private List<String> refreshRates;
+    private List<String> refreshRate;
 
 //    private String graphicsCard;
 
