@@ -252,9 +252,22 @@ public class ProductService {
 
     private String normalize(String input) {
         if (input == null) return "";
-        return input.trim().toLowerCase()
-                .replaceAll("\\s+", " ")
-                .replaceAll("([0-9]+)\\s*([a-zà-ỹ]+)", "$1$2"); // Xóa khoảng trắng giữa số và đơn vị
+
+        // Chuẩn hóa cơ bản
+        String normalized = input.trim().toLowerCase().replaceAll("\\s+", " ");
+        normalized = normalized.replaceAll("(?<=\\d)(gb|tb|mb)", " $1");
+
+        // Xử lý đặc biệt cho RAM và Storage
+        if (normalized.matches("^\\d+\\s+(gb|tb|mb)\\b.*")) {
+            String[] parts = normalized.split("\\s+");
+            if (parts.length >= 2 && parts[1].matches("gb|tb")) {
+                // Lấy phần số và đơn vị đầu tiên (bỏ phần trong ngoặc)
+                normalized = parts[0] + " " + parts[1];
+
+            }
+        }
+
+        return normalized;
     }
 
 
