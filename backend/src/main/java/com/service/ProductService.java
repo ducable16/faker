@@ -166,20 +166,16 @@ public class ProductService {
             Map<Integer, ProductVariant> existingVariants = product.getVariants().stream()
                     .collect(Collectors.toMap(ProductVariant::getVariantId, Function.identity()));
             for(ProductVariant productVariant : existingVariants.values()) {
-                System.out.println(productVariant);
-                System.out.println("haha");
             }
             // Update or create variants
             for (ProductVariantRequest variantReq : request.getVariants()) {
                 ProductVariant variant = variantReq.getVariantId() != null ?
                         existingVariants.get(variantReq.getVariantId()) : null;
-                System.out.println(variantReq);
                 if (variant == null) {
                     variant = new ProductVariant();
                     variant.setProduct(product);
                     product.getVariants().add(variant);
                 }
-                System.out.println(variant.getVariantId());
                 variant.setColor(variantReq.getColor());
                 variant.setImageUrl(variantReq.getImageUrl());
                 variant.setStockQuantity(variantReq.getStockQuantity());
@@ -310,7 +306,6 @@ public class ProductService {
 
             // Nếu khớp thì thêm vào danh sách kết quả
             if (isMatch) {
-                System.out.println("hehehe");
                 filteredProducts.add(product);
             }
         }
@@ -335,7 +330,6 @@ public class ProductService {
 
             // Nếu khớp thì thêm vào danh sách kết quả
             if (isMatch) {
-                System.out.println("hehehe");
                 filteredProducts.add(product);
             }
         }
@@ -413,8 +407,6 @@ public class ProductService {
         // Chỉ cần khớp với 1 trong các giá trị expected là đủ
         for (String expectedValue : expectedValues) {
             if (matchesField(specs, titleList, expectedValue, fieldType)) {
-                System.out.print(expectedValue + " " + fieldType + specs);
-                System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                 return true;
             }
         }
@@ -437,15 +429,12 @@ public class ProductService {
         String normalizedExpected = normalize(expectedValue);
 
         for (Map<String, String> spec : specs) {
-//            System.out.println(spec.toString());
             String specTitle = spec.get("title");
             String specContent = spec.get("content");
             if (specTitle != null && specContent != null) {
                 for (String title : titleList) {
                     if (similarTo(title, specTitle)) {
-//                        System.out.println(spec  + specTitle);
                         String normalizedContent = normalize(specContent);
-//                        System.out.println(normalizedContent + " " + normalizedExpected + spec);
                         switch (fieldType) {
                             case CPU:
                                 return matchCpu(normalizedContent, normalizedExpected);
