@@ -257,13 +257,23 @@ public class ProductService {
         String normalized = input.trim().toLowerCase().replaceAll("\\s+", " ");
         normalized = normalized.replaceAll("(?<=\\d)(gb|tb|mb|hz)", " $1");
 
-        // Xử lý đặc biệt cho RAM và Storage
+        // Nếu bắt đầu bằng Apple → giữ nguyên sau chuẩn hóa
+        if (normalized.startsWith("apple")) {
+            return normalized;
+        }
+
+        // Nếu bắt đầu bằng Intel hoặc AMD → lấy 3 từ đầu
+        if (normalized.startsWith("intel") || normalized.startsWith("amd")) {
+            String[] parts = normalized.split("\\s+");
+            int limit = Math.min(parts.length, 3);
+            return String.join(" ", Arrays.copyOfRange(parts, 0, limit));
+        }
+
+        // Xử lý đặc biệt cho RAM / Storage như cũ
         if (normalized.matches("^\\d+\\s+(gb|tb|mb|hz)\\b.*")) {
             String[] parts = normalized.split("\\s+");
             if (parts.length >= 2 && parts[1].matches("gb|tb|hz")) {
-                // Lấy phần số và đơn vị đầu tiên (bỏ phần trong ngoặc)
                 normalized = parts[0] + " " + parts[1];
-
             }
         }
 
