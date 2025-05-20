@@ -1,7 +1,6 @@
 package com.repository;
 
 import com.entity.Order;
-import com.entity.OrderItem;
 import com.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -18,5 +17,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findOrdersByStatus(OrderStatus status);
 
+//    List<Order> findOrdersByShipperIdIsNull();
 
+    List<Order> findOrdersByStatusAndShipperIdIsNull(OrderStatus status);
+
+    List<Order> findOrdersByShipperId(Integer shipperId);
 }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public class OrderService {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
     private OrderItemRepository orderItemRepository;
     @Autowired
@@ -41,7 +42,14 @@ public class OrderService {
     @Autowired
     private EmailService emailService;
 
-   public Integer createOrder(OrderRequest orderRequest, String token) {
+    public List<Order> getOrdersWithoutShipper() {
+        return orderRepository.findOrdersByStatusAndShipperIdIsNull(OrderStatus.APPROVED);
+    }
+    public List<Order> getOrdersByShipperId(Integer shipperId) {
+        return orderRepository.findOrdersByShipperId(shipperId);
+    }
+
+    public Integer createOrder(OrderRequest orderRequest, String token) {
         if(orderRequest.getItems().length == 0) return -1;
         User user = userService.getInfo(token).get();
         Order order = new Order(orderRequest, user.getUserId());
@@ -150,6 +158,27 @@ public class OrderService {
             orderItemDTOs.add(item);
         }
         return orderItemDTOs;
+    }
+
+    public Order assignOrderToShipper(Integer orderId, Integer shipperId) {
+        // Chỉ nhận đơn chưa được gán shipper
+        Order order = orderRepository.findOrderByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found or already assigned"));
+
+        // Gán shipper và cập nhật trạng thái (nếu cần)
+        order.setShipperId(shipperId);
+        order.setStatus(OrderStatus.SHIPPING); // hoặc DELIVERING tùy hệ thống
+
+        return orderRepository.save(order);
+    }
+
+    public Order updateOrderStatus(Integer orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setStatus(newStatus);
+        if(newStatus == OrderStatus.DELIVERED) order.setDeliveredAt(LocalDateTime.now());
+        return orderRepository.save(order);
     }
 
 }
