@@ -69,6 +69,8 @@ public class SecurityConfig {
                         .requestMatchers("/cart-item/**").authenticated()
                         .requestMatchers("/api/vnpay/**").authenticated()
                         .requestMatchers("/location/**").permitAll()
+                        .requestMatchers("/rating/submit").authenticated()
+                        .requestMatchers("/rating/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
