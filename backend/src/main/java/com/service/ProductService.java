@@ -1,5 +1,6 @@
 package com.service;
 
+import com.entity.Brand;
 import com.entity.Category;
 import com.entity.Product;
 import com.entity.ProductVariant;
@@ -196,6 +197,19 @@ public class ProductService {
         Optional<Category> category = categoryRepository.findByCategoryNameIgnoreCase(categoryName);
         if (category.isPresent()) {
             List<Product> products = productRepository.findByCategoryId(category.get().getCategoryId());
+            List<ProductDTO> productDTOs = new ArrayList<>();
+            for (Product product : products) {
+                ProductDTO dto = toDTO(product);
+                productDTOs.add(dto);
+            }
+            return productDTOs;
+        } else return null;
+
+    }
+    public List<ProductDTO> getProductByBrand(String brandName) {
+        Optional<Brand> brand = brandRepository.findByBrandNameIgnoreCase(brandName);
+        if (brand.isPresent()) {
+            List<Product> products = productRepository.findByBrandId(brand.get().getBrandId());
             List<ProductDTO> productDTOs = new ArrayList<>();
             for (Product product : products) {
                 ProductDTO dto = toDTO(product);
