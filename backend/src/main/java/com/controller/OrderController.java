@@ -147,6 +147,7 @@ public class OrderController {
     }
     @GetMapping("/shipper-info")
     public ResponseEntity<?> shipperInfo(@RequestParam Integer orderId, @RequestHeader("Authorization") String token) {
+        System.out.println(orderId);
         Optional<User> u = userService.getInfo(token);
         if(u.isPresent()) {
             User user = u.get();
