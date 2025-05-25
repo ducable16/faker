@@ -152,7 +152,7 @@ public class OrderController {
             User user = u.get();
             Optional<Order> order = orderService.getOrderById(orderId);
             if(order.isPresent()) {
-                if(order.get().getUserId().equals(user.getUserId())) {
+                if(order.get().getUserId().equals(user.getUserId()) || jwtService.extractRole(token).equals(Role.ADMIN) || jwtService.extractRole(token).equals(Role.SHIPPER)) {
                     return ResponseEntity.status(200).body(orderService.getShipperInfo(orderId));
                 }
                 else return ResponseEntity.status(400).body(new StatusResponse("Unauthorized"));
