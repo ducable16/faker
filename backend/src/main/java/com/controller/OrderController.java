@@ -6,8 +6,8 @@ import com.enums.DeliveryMethod;
 import com.enums.OrderStatus;
 import com.enums.Role;
 import com.request.ApplyStatusRequest;
-import com.request.ShippingRequest;
 import com.request.OrderRequest;
+import com.request.ShippingRequest;
 import com.response.StatusResponse;
 import com.service.JwtService;
 import com.service.OrderService;
@@ -37,7 +37,6 @@ public class OrderController {
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request, @RequestHeader("Authorization") String token) {
         Integer orderCodeReturn = orderService.createOrder(request, token);
         if(orderCodeReturn != -1) {
-            System.out.println(orderCodeReturn);
             return ResponseEntity.status(200).body(orderService.getOrderById(orderCodeReturn));
 
         }
@@ -145,6 +144,22 @@ public class OrderController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body("Order not found");
         }
+    }
+    @GetMapping("/shipper-info")
+    public ResponseEntity<?> shipperInfo(@RequestParam Integer orderId, @RequestHeader("Authorization") String token) {
+        Optional<User> u = userService.getInfo(token);
+        if(u.isPresent()) {
+            User user = u.get();
+            Optional<Order> order = orderService.getOrderById(orderId);
+            if(order.isPresent()) {
+                if(order.get().getUserId().equals(user.getUserId())) {
+                    return ResponseEntity.status(200).body(orderService.getShipperInfo(orderId));
+                }
+                else return ResponseEntity.status(400).body(new StatusResponse("Unauthorized"));
+            }
+            else return ResponseEntity.status(404).body(new StatusResponse("Order not found"));
+        }
+        else return ResponseEntity.status(404).body(new StatusResponse("Unauthorized"));
     }
 
 

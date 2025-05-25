@@ -6,7 +6,6 @@ import com.repository.RatingRepository;
 import com.repository.UserRepository;
 import com.request.RatingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

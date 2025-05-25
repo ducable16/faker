@@ -80,7 +80,7 @@ public class VnPayService {
             if (postData.length() != 0) postData.append('&');
             postData.append(param.getKey());
             postData.append('=');
-            postData.append(java.net.URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
+            postData.append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
         }
 
         try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {

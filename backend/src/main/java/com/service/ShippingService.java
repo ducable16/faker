@@ -4,7 +4,6 @@ import com.entity.Product;
 import com.enums.DeliveryMethod;
 import com.repository.ProductRepository;
 import com.request.Item;
-import com.request.ShippingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

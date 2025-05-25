@@ -2,7 +2,6 @@ package com.service;
 
 import com.entity.CartItem;
 import com.repository.CartItemRepository;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,13 +1,11 @@
 package com.service;
 
 import com.entity.Category;
-import com.entity.Product;
 import com.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

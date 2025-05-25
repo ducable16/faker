@@ -4,13 +4,13 @@ import com.entity.Brand;
 import com.entity.Category;
 import com.entity.Product;
 import com.entity.ProductVariant;
+import com.entity.dto.ProductDTO;
+import com.entity.dto.ProductVariantDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.repository.BrandRepository;
 import com.repository.CategoryRepository;
 import com.repository.ProductRepository;
-import com.entity.dto.ProductDTO;
-import com.entity.dto.ProductVariantDTO;
 import com.repository.ProductVariantRepository;
 import com.request.ProductQuantityCheckRequest;
 import com.request.ProductRequest;
@@ -21,7 +21,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -461,7 +460,6 @@ public class ProductService {
                 for (String title : titleList) {
                     if (similarTo(title, specTitle)) {
                         String normalizedContent = normalize(specContent);
-                        System.out.println(normalizedContent + " xxx " + normalizedExpected);
                         switch (fieldType) {
                             case CPU:
                                 return matchCpu(normalizedContent, normalizedExpected);

@@ -1,9 +1,7 @@
 package com.service;
 
 import com.entity.Brand;
-import com.entity.Category;
 import com.repository.BrandRepository;
-import com.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.stereotype.Service;

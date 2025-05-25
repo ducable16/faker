@@ -2,21 +2,12 @@ package com.service;
 
 import com.entity.*;
 import com.entity.dto.OrderItemDTO;
-import com.entity.dto.ProductDTO;
-import com.entity.dto.ProductVariantDTO;
-import com.enums.DeliveryMethod;
 import com.enums.OrderStatus;
-import com.repository.OrderItemRepository;
-import com.repository.OrderRepository;
-import com.repository.ProductRepository;
-import com.repository.ProductVariantRepository;
-import com.repository.location.DistrictRepository;
-import com.repository.location.ProvinceRepository;
+import com.repository.*;
 import com.request.Item;
 import com.request.OrderRequest;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import com.response.ShipperInfoResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -41,6 +32,8 @@ public class OrderService {
     private CartService cartService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<Order> getOrdersWithoutShipper() {
         return orderRepository.findOrdersByStatusAndShipperIdIsNull(OrderStatus.APPROVED);
@@ -53,7 +46,6 @@ public class OrderService {
         if(orderRequest.getItems().length == 0) return -1;
         User user = userService.getInfo(token).get();
         Order order = new Order(orderRequest, user.getUserId());
-        System.out.println(order.getOrderId());
         Long totalAmount = 0L;
         for(Item item : orderRequest.getItems()) {
             ProductVariant productVariant = productVariantRepository.findById(item.getVariantId()).get();
@@ -63,7 +55,6 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
         order.setNote(orderRequest.getNote());
         order.setShippingFee(orderRequest.getShippingFee());
-        System.out.println(order.getStatus());
         orderRepository.save(order);
 
 
@@ -189,4 +180,17 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public ShipperInfoResponse getShipperInfo(Integer orderId) {
+        Order order = orderRepository.findOrderByOrderId(orderId).get();
+        Optional<User> optional = userRepository.findById(order.getShipperId());
+        if(optional.isPresent()) {
+            User shipper = optional.get();
+            ShipperInfoResponse response = new ShipperInfoResponse();
+            response.setShipperId(order.getShipperId());
+            response.setFullName(shipper.getFirstName() + " " + shipper.getLastName());
+            response.setPhoneNumber(shipper.getPhoneNumber());
+            return response;
+        }
+        return null;
+    }
 }

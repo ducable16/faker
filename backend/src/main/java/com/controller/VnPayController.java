@@ -1,12 +1,9 @@
 package com.controller;
 
-import com.google.gson.JsonObject;
 import com.request.PaymentRequest;
 import com.request.QueryRequest;
-import com.request.RefundRequest;
 import com.response.UrlResponse;
 import com.service.VnPayService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
