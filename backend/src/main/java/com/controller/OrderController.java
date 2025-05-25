@@ -153,6 +153,7 @@ public class OrderController {
             User user = u.get();
             Optional<Order> order = orderService.getOrderById(orderId);
             if(order.isPresent()) {
+                if(order.get().getShipperId() == null) return ResponseEntity.status(404).body(new StatusResponse("Order not have shipper yet"));
                 if(order.get().getUserId().equals(user.getUserId()) || jwtService.extractRole(token).equals(Role.ADMIN) || jwtService.extractRole(token).equals(Role.SHIPPER)) {
                     return ResponseEntity.status(200).body(orderService.getShipperInfo(orderId));
                 }
