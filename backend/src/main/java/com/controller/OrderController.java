@@ -62,7 +62,7 @@ public class OrderController {
         Optional<User> u = userService.getInfo(token);
         Optional<Order> order = orderService.getOrderById(orderId);
         if(u.isPresent() && order.isPresent()) {
-            if(u.get().getUserId().equals(order.get().getUserId()) || jwtService.extractRole(token).equals(Role.ADMIN) || jwtService.extractRole(token).equals(Role.SHIPPER)) {
+            if(u.get().getUserId().equals(order.get().getUserId()) || jwtService.extractRole(token).equals(Role.ADMIN) || jwtService.extractRole(token).equals(Role.SHIPPER) || jwtService.extractRole(token).equals(Role.PRODUCT_MANAGER)) {
                 return ResponseEntity.status(200).body(order.get());
             }
             else return ResponseEntity.status(403).body(new StatusResponse("Access Denied"));
