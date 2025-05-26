@@ -126,12 +126,12 @@ public class UserController {
         }
 
     }
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable String userId) {
-        Optional<User> user = userService.getInfo(userId);
-        if(user.isPresent()) {
-            return ResponseEntity.status(200).body(user.get());
-        }
-        else return ResponseEntity.status(404).body(new StatusResponse("User not found"));
-    }
+//    @GetMapping("/{userId}")
+//    public ResponseEntity<?> getUserById(@PathVariable String userId) {
+//        Optional<User> user = userService.getInfo(userId);
+//        if(user.isPresent()) {
+//            return ResponseEntity.status(200).body(user.get());
+//        }
+//        else return ResponseEntity.status(404).body(new StatusResponse("User not found"));
+//    }
 }
