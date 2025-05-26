@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/brand/**").hasAnyRole("ADMIN", "PRODUCT_MANAGER")
                         .requestMatchers("/order/status/**").hasAnyRole("ADMIN")
                         .requestMatchers("/order/approve/").hasAnyRole("ADMIN")
-                        .requestMatchers("/order/view/all").hasAnyRole("ADMIN")
+                        .requestMatchers("/order/view/all").authenticated()
                         .requestMatchers("/order/shipping-fee").permitAll()
                         .requestMatchers("/order/unassigned").hasAnyRole("ADMIN", "SHIPPER")
                         .requestMatchers("/order/shipper/").hasAnyRole("ADMIN", "SHIPPER")
